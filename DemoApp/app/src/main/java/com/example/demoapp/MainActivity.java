@@ -130,15 +130,16 @@ public class MainActivity extends AppCompatActivity {
                     //System.out.println("X Angle:" + xAngle);
                     //System.out.println("Y Angle:" + yAngle);
 
+                    updateSideUp(xAngle,yAngle);
+
                     if (autoRollEn == false) {
 
-                        System.out.println("----------");
-                        updateSideUp(xAngle,yAngle);
-                        System.out.println("Top: " + currentSideUp);
-                        System.out.println("----------");
-                        System.out.println("----------");
-                        System.out.println(operatingMode);
-                        System.out.println(randomChoiceIndex);
+                        System.out.println("-----------------------------------");
+                        System.out.println("Current Top: " + currentSideUp);
+                        System.out.println("-----------------------------------");
+                        System.out.println("Operating Mode: " + operatingMode);
+                        System.out.println("-----------------------------------");
+                        System.out.println("Current Random Choice Index: " + randomChoiceIndex);
 
                     }
 
@@ -211,7 +212,10 @@ public class MainActivity extends AppCompatActivity {
 
         autoRollSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
+
+                System.out.println("-----------------------------------");
                 System.out.println("Switch ON");
+                System.out.println("-----------------------------------");
 
                 try {
                     autoRoll();
@@ -220,7 +224,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } else {
+
+                System.out.println("-----------------------------------");
                 System.out.println("Switch OFF");
+                System.out.println("-----------------------------------");
             }
         });
         return true;
@@ -233,11 +240,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
+
         try {
-            //Close your Phidgets once the program is done.
+
             spatial0.close();
+
             Log.d("onDestroy: ", "Closed channels.");
+
         } catch (PhidgetException e) {
             e.printStackTrace();
         }
@@ -245,13 +256,11 @@ public class MainActivity extends AppCompatActivity {
 
     public double calculateAngleX(double x,double y,double z) {
 
-        //return (Math.atan(y / Math.sqrt(pow(x, 2) + pow(z, 2))) * 180 / Math.PI);
         return Math.atan2(y , z) * 57.3;
     }
 
     public double calculateAngleY(double x,double y,double z) {
 
-        //return (Math.atan(-1 * x / Math.sqrt(pow(y, 2) + pow(z, 2))) * 180 / Math.PI);
         return Math.atan2((- x) , Math.sqrt(y * y + z * z)) * 57.3;
     }
 
@@ -304,10 +313,13 @@ public class MainActivity extends AppCompatActivity {
         Arrays.fill(arr, ' ');
         String space = new String(arr);
 
+        System.out.println("-------------------------------------------------------------------------------");
         System.out.println("");
         System.out.println(" " + space + "|" + addPadding(getSide(6),maxChar) + "|" + space + " " + space + " ");
         System.out.println("|" + addPadding(getSide(3),maxChar) + "|" + addPadding(getSide(1),maxChar) + "|" + addPadding(getSide(5),maxChar) + "|" + addPadding(getSide(4),maxChar) + "|");
         System.out.println(" " + space + "|" + addPadding(getSide(2),maxChar) + "|" + space + " " + space + " ");
+        System.out.println("");
+        System.out.println("-------------------------------------------------------------------------------");
         System.out.println("");
 
     }
@@ -347,7 +359,6 @@ public class MainActivity extends AppCompatActivity {
     public void updateDiceSixNormal () throws PhidgetException {
 
         setDiceSides();
-        updateDice();
 
         if (lastSideUp != currentSideUp) {
 
@@ -362,19 +373,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateDiceSixExtended () throws PhidgetException {
 
-        ArrayList fillingIndexes = new ArrayList<>();
+        ArrayList fillingIndexes = new ArrayList<>(6);
 
         while (fillingIndexes.size() < 6) {
 
-            int tempchoice = 0 + (int)(Math.random() * ((5) + 1));
+            int tempChoice = (int)(Math.random() * ((5) + 1));
 
-            if (tempchoice != randomChoiceIndex) {
+            if (tempChoice != randomChoiceIndex) {
 
-                fillingIndexes.add(tempchoice);
+                fillingIndexes.add(tempChoice);
             }
         }
-
-        System.out.println(Arrays.toString(fillingIndexes.toArray()));
 
         setDiceSides(fillingIndexes);
 
@@ -382,9 +391,12 @@ public class MainActivity extends AppCompatActivity {
 
         updateDice();
 
-        System.out.println(choices.get(randomChoiceIndex));
-
         if (lastSideUp != currentSideUp) {
+
+            System.out.println("-----------------------------------");
+            System.out.println(choices.get(randomChoiceIndex));
+            System.out.println("-----------------------------------");
+            System.out.println("");
 
             updateDice();
 
@@ -395,6 +407,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateDice() throws PhidgetException {
+
+        System.out.println("-----------------------------------");
+        System.out.println("----------Screens Update-----------");
+        System.out.println("-----------------------------------");
+        System.out.println("");
 
         lcd0.clear();
         lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(0));
@@ -412,11 +429,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void autoRoll() throws PhidgetException, InterruptedException {
 
+        System.out.println("-----------------------------------");
+        System.out.println("---------AutoRoll Activated--------");
+        System.out.println("-----------------------------------");
+        System.out.println("");
+
         autoRollEn = true;
 
         int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
+        System.out.println("-----------------------------------");
         System.out.println("Number of Rolls: " + sideToStopOn);
+        System.out.println("-----------------------------------");
+        System.out.println("");
 
         if (sideToStopOn != 1)  {
 
@@ -424,40 +449,46 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i=1; i <= sideToStopOn; i++) {
 
+                System.out.println("-----------------------------------");
+                System.out.println("Current Side To Flip: " + currentSide);
+                System.out.println("-----------------------------------");
+                System.out.println("");
+
+
                 servos[currentSide-1].setTargetPosition(0);
                 servos[currentSide-1].setEngaged(true);
-
-
                 Thread.sleep(1000);
 
                 servos[currentSide-1].setTargetPosition(180);
                 servos[currentSide-1].setEngaged(true);
-
                 Thread.sleep(1000);
+
 
                 servos[currentSide-1].setTargetPosition(0);
                 servos[currentSide-1].setEngaged(true);
-
                 Thread.sleep(1000);
 
+                // Restart dice roll after all faces have been seen
                 if (currentSide == 4) {
-
                     currentSide = 1;
-
                 } else {
-
                     currentSide++;
                 }
 
-
             }
-
-
 
         }
 
-        autoRollEn = false;
+        System.out.println("-----------------------------------");
+        System.out.println("---------AutoRoll Completed--------");
+        System.out.println("-----------------------------------");
+        System.out.println("Number of Rolls: " + sideToStopOn);
+        System.out.println("-----------------------------------");
+        System.out.println("Current Side : " + currentSideUp);
+        System.out.println("-----------------------------------");
+        System.out.println("");
 
+        autoRollEn = false;
 
     }
 
