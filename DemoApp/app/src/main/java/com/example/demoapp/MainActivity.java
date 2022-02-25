@@ -10,6 +10,7 @@ import com.example.demoapp.ui.main.MainFragment;
 import com.phidget22.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,10 +21,30 @@ public class MainActivity extends AppCompatActivity {
     private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
     private ArrayList<String> choices = choicesSingleton.getChoices();
 
+    Spatial spatial0; // Accelerometer
+    int currentSideUp = 0; // Current dice side facing up - (1-6)
+    int error = 30; // Maximum angle error in angle calculation
+    int maxChar = 16; // Screen size in number of characters
+    int maxRolls = 18; // Maximum number of rolls in auto roll
+
+    ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
+
+    // Used to determine the current mode the dice is in
+    public enum OperatingMode {
+        INACTIVE,
+        SIXSIDENORMAL,
+        SIXSIDEEXTENDED,
+    }
+
+    OperatingMode operatingMode; // Current dice mode
+    int randomChoiceIndex; // Stores the random choice made
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        init();
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -32,67 +53,64 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
+
             //Enable server discovery to list remote Phidgets
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
 
-            Net.addServer("", "192.168.1.203", 5661, "", 0);
+            Net.addServer("", "172.25.160.1", 5661, "", 0);
 
             //Create your Phidget channels
-            voltageRatioInput0 = new VoltageRatioInput();
-            lcd0 = new LCD();
 
-            //Set addressing parameters to specify which channel to open (if any)
+            spatial0 = new Spatial();
 
-            voltageRatioInput0.setChannel(0);
-            voltageRatioInput0.setDeviceSerialNumber(29773);
-            lcd0.setDeviceSerialNumber(29773);
+            spatial0.addSpatialDataListener(new SpatialSpatialDataListener() {
+                public void onSpatialData(SpatialSpatialDataEvent e) {
 
-            voltageRatioInput0.addAttachListener(onCh_Attach);
-            voltageRatioInput0.addDetachListener(onCh_Detach);
-            voltageRatioInput0.addVoltageRatioChangeListener(onCh_VoltageRatioChange);
+                    //System.out.println("Acceleration: \t"+ e.getAcceleration()[0]+ "  |  "+ e.getAcceleration()[1]+ "  |  "+ e.getAcceleration()[2]);
+                    //System.out.println("AngularRate: \t"+ e.getAngularRate()[0]+ "  |  "+ e.getAngularRate()[1]+ "  |  "+ e.getAngularRate()[2]);
+                    //System.out.println("MagneticField: \t"+ e.getMagneticField()[0]+ "  |  "+ e.getMagneticField()[1]+ "  |  "+ e.getMagneticField()[2]);
+                    //System.out.println("Timestamp: " + e.getTimestamp());
+                    //System.out.println("----------");
 
-            lcd0.addAttachListener(onCh_Attach);
-            lcd0.addDetachListener(onCh_Detach);
+                    double xAngle = calculateAngleX(e.getAcceleration()[0],e.getAcceleration()[1],e.getAcceleration()[2]);
+                    double yAngle = calculateAngleY(e.getAcceleration()[0],e.getAcceleration()[1],e.getAcceleration()[2]);
 
-            voltageRatioInput0.open(5000);
-            lcd0.open(5000);
+                    System.out.println("X Angle:" + xAngle);
+                    System.out.println("Y Angle:" + yAngle);
+                    System.out.println("----------");
+                    updateSideUp(xAngle,yAngle);
+                    System.out.println("Top: " + currentSideUp);
+                    System.out.println("----------");
+                    System.out.println("Selected Choice: " + choices.get(randomChoiceIndex));
+                    System.out.println("----------");
 
-            voltageRatioInput0.setVoltageRatioChangeTrigger(0.35);
-            lcd0.setBacklight(0.5);
-            lcd0.setContrast(0.5);
+
+                    switch(operatingMode) {
+                        case INACTIVE:
+                            break;
+                        case SIXSIDENORMAL:
+                            updateDiceSixNormal();
+                            break;
+                        case SIXSIDEEXTENDED:
+                            updateDiceSixExtended();
+
+                    }
+
+                    printDice();
+
+                    updateDice();
+
+                }
+            });
+
+            spatial0.open(5000);
 
         } catch (PhidgetException pe) {
             pe.printStackTrace();
         }
     }
 
-    public VoltageRatioInputVoltageRatioChangeListener onCh_VoltageRatioChange =
-            new VoltageRatioInputVoltageRatioChangeListener() {
-                @Override
-                public void onVoltageRatioChange(VoltageRatioInputVoltageRatioChangeEvent e) {
-
-                    if (choices.size() > 0 && e.getVoltageRatio() > 0.7) {
-                        Log.d("Voltage Ratio Value: ", String.valueOf(e.getVoltageRatio()));
-                        String choice = choices.get(rand.nextInt(choices.size()));
-                        Log.d("Choice: ", choice);
-
-                        try {
-                            lcd0.clear();
-                            lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, choice);
-                            lcd0.flush();
-                        } catch (PhidgetException phidgetException) {
-                            phidgetException.printStackTrace();
-                        }
-
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException interruptedException) {
-                            interruptedException.printStackTrace();
-                        }
-                    }
-                }
-            };
 
     public AttachListener onCh_Attach =
             new AttachListener() {
@@ -120,11 +138,177 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         try {
             //Close your Phidgets once the program is done.
-            voltageRatioInput0.close();
-            lcd0.close();
+            spatial0.close();
             Log.d("onDestroy: ", "Closed channels.");
         } catch (PhidgetException e) {
             e.printStackTrace();
         }
+    }
+
+    public double calculateAngleX(double x,double y,double z) {
+
+        //return (Math.atan(y / Math.sqrt(pow(x, 2) + pow(z, 2))) * 180 / Math.PI);
+        return Math.atan2(y , z) * 57.3;
+    }
+
+    public double calculateAngleY(double x,double y,double z) {
+
+        //return (Math.atan(-1 * x / Math.sqrt(pow(y, 2) + pow(z, 2))) * 180 / Math.PI);
+        return Math.atan2((- x) , Math.sqrt(y * y + z * z)) * 57.3;
+    }
+
+    public void updateSideUp(double aX, double aY) {
+
+        if ( ((aX >= (0-error))&&(aX <= (0+error))) && ((aY >= (0-error))&&(aY <= (0+error))) ) {
+
+            currentSideUp = 1;
+
+        } else if ( ((aX >= (-90-error))&&(aX <= (-90+error))) && ((aY >= (0-error))&&(aY <= (0+error))) ) {
+
+            currentSideUp = 2;
+
+        } else if ( ((aX >= (-180-error))&&(aX <= (-180+error))) && ((aY >= (-90-error))&&(aY <= (-90+error))) ) {
+
+            currentSideUp = 3;
+
+        } else if ( ((aX >= (180-error))&&(aX <= (180+error))) && ((aY >= (0-error))&&(aY <= (0+error))) ) {
+
+            currentSideUp = 4;
+
+        } else if ( ((aX >= (180-error))&&(aX <= (180+error))) && ((aY >= (90-error))&&(aY <= (90+error))) ) {
+
+            currentSideUp = 5;
+
+        } else if ( ((aX >= (90-error))&&(aX <= (90+error))) && ((aY >= (0-error))&&(aY <= (0+error))) ) {
+
+            currentSideUp = 6;
+
+        } else {
+
+        }
+
+    }
+
+    public String addPadding(String string, int maxChar) {
+
+        return String.format("%-" + maxChar  + "s", String.format("%" + (string.length() + (maxChar - string.length()) / 2) + "s", string));
+
+    }
+
+    public String getSide(int side) {
+
+        return diceSides.get(side-1);
+    }
+
+    public void printDice() {
+
+        char[] arr = new char[maxChar];
+        Arrays.fill(arr, ' ');
+        String space = new String(arr);
+
+        System.out.println("");
+        System.out.println(" " + space + "|" + addPadding(getSide(6),maxChar) + "|" + space + " " + space + " ");
+        System.out.println("|" + addPadding(getSide(3),maxChar) + "|" + addPadding(getSide(1),maxChar) + "|" + addPadding(getSide(5),maxChar) + "|" + addPadding(getSide(4),maxChar) + "|");
+        System.out.println(" " + space + "|" + addPadding(getSide(2),maxChar) + "|" + space + " " + space + " ");
+        System.out.println("");
+
+    }
+
+    public void setRandomChoice() {
+
+        randomChoiceIndex = (int)(Math.random() * ((choices.size()) + 1));
+
+    }
+
+    public void setDiceSide(int choiceIndex, int sideNum) {
+
+        diceSides.add(sideNum - 1,choices.get(choiceIndex));
+
+    }
+
+    public void setDiceSides() {
+
+        for (int i=0; i < 6; i++) {
+
+            diceSides.add(i,choices.get(i));
+
+        }
+
+    }
+
+    public void setDiceSides(ArrayList<Integer> indexes) {
+
+        for (int i=0; i < indexes.size(); i++) {
+
+            diceSides.add(i,choices.get(i));
+
+        }
+
+    }
+
+    public void updateDiceSixNormal () {
+
+        setDiceSides();
+        updateDice();
+
+
+    }
+
+    public void updateDiceSixExtended () {
+
+        ArrayList fillingIndexes = new ArrayList<>();
+
+        while (fillingIndexes.size() < 6) {
+
+            int tempchoice = 0 + (int)(Math.random() * ((5) + 1));
+
+            if (tempchoice != randomChoiceIndex) {
+
+                fillingIndexes.add(tempchoice);
+            }
+        }
+
+        setDiceSides(fillingIndexes);
+
+        setDiceSide(randomChoiceIndex,currentSideUp);
+
+        updateDice();
+
+    }
+
+    public void updateDice() {
+
+        // Update Screens
+
+    }
+
+    public void autoRoll() {
+
+        int sideToStopOn = (int)(Math.random() * ((5) + 1));
+
+        // Generate a factor of 6 within the max rolls - could be 5 depending on whats selected - ie 1 doesnt need moving
+
+        // Loop For that amount - activating the respective servo
+
+    }
+
+    public void init() {
+
+        diceSides.add(addPadding("One", maxChar));
+        diceSides.add(addPadding("Two", maxChar));
+        diceSides.add(addPadding("Three", maxChar));
+        diceSides.add(addPadding("Four", maxChar));
+        diceSides.add(addPadding("Five", maxChar));
+        diceSides.add(addPadding("Six", maxChar));
+
+        operatingMode = OperatingMode.INACTIVE;
+
+        if (choices.isEmpty()) return;
+        setRandomChoice();
+
+    }
+
+    public void setOperatingMode(OperatingMode op) {
+        this.operatingMode = op;
     }
 }

@@ -88,6 +88,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
                     if (trimmedElem.length() > 0) {
                         this.choicesSingleton.addChoice(trimmedElem);
+                        if (choicesSingleton.getChoices().size() == 6) {
+                            updateOperatingMode(MainActivity.OperatingMode.SIXSIDENORMAL);
+                        } else if (choicesSingleton.getChoices().size() >= 6) {
+                            updateOperatingMode(MainActivity.OperatingMode.SIXSIDEEXTENDED);
+                        } else {
+                            updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
+                        }
                     }
                 } else {
                     alreadyExists = true;
@@ -102,5 +109,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                     Snackbar.LENGTH_LONG)
                     .show();
         }
+    }
+
+    public void updateOperatingMode(MainActivity.OperatingMode op) {
+        parent.setOperatingMode(op);
     }
 }

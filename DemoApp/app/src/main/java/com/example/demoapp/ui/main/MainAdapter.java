@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.demoapp.ChoicesSingleton;
+import com.example.demoapp.MainActivity;
 import com.example.demoapp.R;
 
 import java.util.ArrayList;
@@ -73,5 +74,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     public void removeItem(int pos) {
         choicesSingleton.removeChoice(pos);
         notifyItemRemoved(pos);
+        if (choicesSingleton.getChoices().size() == 6) {
+            parentFragment.updateOperatingMode(MainActivity.OperatingMode.SIXSIDENORMAL);
+        } else if (choicesSingleton.getChoices().size() >= 6) {
+            parentFragment.updateOperatingMode(MainActivity.OperatingMode.SIXSIDEEXTENDED);
+        } else {
+            parentFragment.updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
+        }
     }
 }
