@@ -92,6 +92,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                             updateOperatingMode(MainActivity.OperatingMode.SIXSIDENORMAL);
                         } else if (choicesSingleton.getChoices().size() >= 6) {
                             updateOperatingMode(MainActivity.OperatingMode.SIXSIDEEXTENDED);
+                            callRandomChoice();
                         } else {
                             updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
                         }
@@ -113,5 +114,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     public void updateOperatingMode(MainActivity.OperatingMode op) {
         parent.setOperatingMode(op);
+    }
+
+    public void callRandomChoice() {
+        parent.setRandomChoice();
     }
 }

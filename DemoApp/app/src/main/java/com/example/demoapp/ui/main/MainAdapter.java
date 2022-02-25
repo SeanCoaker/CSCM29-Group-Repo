@@ -78,6 +78,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
             parentFragment.updateOperatingMode(MainActivity.OperatingMode.SIXSIDENORMAL);
         } else if (choicesSingleton.getChoices().size() >= 6) {
             parentFragment.updateOperatingMode(MainActivity.OperatingMode.SIXSIDEEXTENDED);
+            parentFragment.callRandomChoice();
         } else {
             parentFragment.updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
         }
