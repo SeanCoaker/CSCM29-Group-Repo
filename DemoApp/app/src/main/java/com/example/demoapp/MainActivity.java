@@ -20,11 +20,11 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private VoltageRatioInput voltageRatioInput0;
+    /*
+     / Phidgets Devices
+    */
 
-    private Random rand = new Random();
-    private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
-    private ArrayList<String> choices = choicesSingleton.getChoices();
+    VoltageRatioInput voltageRatioInput0;
 
     RCServo rcServo0;
     RCServo rcServo1;
@@ -36,15 +36,26 @@ public class MainActivity extends AppCompatActivity {
     LCD lcd2;
 
     Spatial spatial0; // Accelerometer
+
+    RCServo servos[];
+
+    /*
+     / App Global Variables
+    */
+
+    private Random rand = new Random();
+    private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
+    private ArrayList<String> choices = choicesSingleton.getChoices();
+
     int currentSideUp = 0; // Current dice side facing up - (1-6)
+    int lastSideUp = 0;
     int error = 30; // Maximum angle error in angle calculation
     int maxChar = 16; // Screen size in number of characters
-
     int maxRolls = 5; // Maximum number of rolls in auto roll
     int movingSides = 4;
 
     ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
-    RCServo servos[];
+
     Boolean autoRollEn = false;
 
     // Used to determine the current mode the dice is in
@@ -57,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
     OperatingMode operatingMode; // Current dice mode
     int randomChoiceIndex = 0; // Stores the random choice made
 
+
+    /*
+     / On Create
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,9 +165,6 @@ public class MainActivity extends AppCompatActivity {
                         printDice();
                     }
 
-                    // updateDice
-                    //set data interval
-
                 }
             });
 
@@ -213,23 +225,6 @@ public class MainActivity extends AppCompatActivity {
         });
         return true;
     }
-
-
-    public AttachListener onCh_Attach =
-            new AttachListener() {
-                @Override
-                public void onAttach(AttachEvent e) {
-                    Log.d("Attach Listener", e.toString());
-                }
-            };
-
-    public DetachListener onCh_Detach =
-            new DetachListener() {
-                @Override
-                public void onDetach(DetachEvent e) {
-                    Log.d("Detach Listener", e.toString());
-                }
-            };
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -354,6 +349,14 @@ public class MainActivity extends AppCompatActivity {
         setDiceSides();
         updateDice();
 
+        if (lastSideUp != currentSideUp) {
+
+            updateDice();
+
+        }
+
+        lastSideUp = currentSideUp;
+
 
     }
 
@@ -381,6 +384,14 @@ public class MainActivity extends AppCompatActivity {
 
         System.out.println(choices.get(randomChoiceIndex));
 
+        if (lastSideUp != currentSideUp) {
+
+            updateDice();
+
+        }
+
+        lastSideUp = currentSideUp;
+
     }
 
     public void updateDice() throws PhidgetException {
@@ -405,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
 
         int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
-        System.out.println("Roll Number" + sideToStopOn);
+        System.out.println("Number of Rolls: " + sideToStopOn);
 
         if (sideToStopOn != 1)  {
 
