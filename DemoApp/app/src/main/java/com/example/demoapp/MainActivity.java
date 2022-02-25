@@ -47,10 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
     private ArrayList<String> choices = choicesSingleton.getChoices();
 
-    int currentSideUp = 0; // Current dice side facing up - (1-6)
-    int lastSideUp = 0;
+    int currentSideUp = 1; // Current dice side facing up - (1-6)
+    int lastSideUp = 1;
     int error = 30; // Maximum angle error in angle calculation
-    int maxChar = 16; // Screen size in number of characters
+    int maxChar = 20; // Screen size in number of characters
     int maxRolls = 5; // Maximum number of rolls in auto roll
     int movingSides = 4;
 
@@ -91,29 +91,48 @@ public class MainActivity extends AppCompatActivity {
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
 
-            Net.addServer("", "172.25.160.1", 5661, "", 0);
+            Net.addServer("", "172.19.80.1", 5661, "", 0);
 
             //Create your Phidget channels
 
             spatial0 = new Spatial();
 
-            lcd0 = new LCD();
-            lcd1 = new LCD();
-            lcd2 = new LCD();
-
-            lcd0.setDeviceSerialNumber(30679);
-            lcd1.setDeviceSerialNumber(30683);
-            lcd0.setDeviceSerialNumber(29773);
-
-            RCServo rcServo0 = new RCServo();
-            RCServo rcServo1 = new RCServo();
-            RCServo rcServo2 = new RCServo();
-            RCServo rcServo3 = new RCServo();
+            rcServo0 = new RCServo();
+            rcServo1 = new RCServo();
+            rcServo2 = new RCServo();
+            rcServo3 = new RCServo();
 
             rcServo0.setChannel(0);
             rcServo1.setChannel(1);
             rcServo2.setChannel(2);
             rcServo3.setChannel(3);
+
+            lcd0 = new LCD();
+            lcd0.setChannel(0);
+            lcd0.setDeviceSerialNumber(30683);
+            lcd0.open(5000);
+            lcd0.setBacklight(0.5);
+            lcd0.setContrast(0.5);
+            lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-3",maxChar));
+            lcd0.flush();
+
+            lcd1 = new LCD();
+            lcd1.setChannel(0);
+            lcd1.setDeviceSerialNumber(30679);
+            lcd1.open(5000);
+            lcd1.setBacklight(0.5);
+            lcd1.setContrast(0.5);
+            lcd1.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-1",maxChar));
+            lcd1.flush();
+
+            lcd2 = new LCD();
+            lcd2.setChannel(0);
+            lcd2.setDeviceSerialNumber(29773);
+            lcd2.open(5000);
+            lcd2.setBacklight(0.5);
+            lcd2.setContrast(0.5);
+            lcd2.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-5",maxChar));
+            lcd2.flush();
 
             spatial0.addSpatialDataListener(new SpatialSpatialDataListener() {
                 public void onSpatialData(SpatialSpatialDataEvent e) {
@@ -139,7 +158,11 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("-----------------------------------");
                         System.out.println("Operating Mode: " + operatingMode);
                         System.out.println("-----------------------------------");
-                        System.out.println("Current Random Choice Index: " + randomChoiceIndex);
+                        if (!choices.isEmpty()){
+
+                            System.out.println("Current Random Choice: " + choices.get(randomChoiceIndex));
+
+                        }
 
                     }
 
@@ -176,19 +199,6 @@ public class MainActivity extends AppCompatActivity {
             rcServo2.open(5000);
             rcServo3.open(5000);
 
-            lcd0.open(5000);
-            lcd1.open(5000);
-            lcd2.open(5000);
-
-            lcd0.setBacklight(0.5);
-            lcd0.setContrast(0.5);
-
-            lcd1.setBacklight(0.5);
-            lcd1.setContrast(0.5);
-
-            lcd2.setBacklight(0.5);
-            lcd2.setContrast(0.5);
-
             servos = new RCServo[4];
             servos[0] = rcServo0;
             servos[1] = rcServo1;
@@ -214,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
             if (isChecked) {
 
                 System.out.println("-----------------------------------");
-                System.out.println("Switch ON");
+                System.out.println("------------Switch ON--------------");
                 System.out.println("-----------------------------------");
 
                 try {
@@ -226,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
                 System.out.println("-----------------------------------");
-                System.out.println("Switch OFF");
+                System.out.println("-----------Switch OFF--------------");
                 System.out.println("-----------------------------------");
             }
         });
@@ -246,6 +256,16 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             spatial0.close();
+
+            lcd0.close();
+            lcd1.close();
+            lcd2.close();
+
+            rcServo0.close();
+            rcServo1.close();
+            rcServo2.close();
+            rcServo3.close();
+
 
             Log.d("onDestroy: ", "Closed channels.");
 
@@ -313,26 +333,26 @@ public class MainActivity extends AppCompatActivity {
         Arrays.fill(arr, ' ');
         String space = new String(arr);
 
-        System.out.println("-------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------");
         System.out.println("");
         System.out.println(" " + space + "|" + addPadding(getSide(6),maxChar) + "|" + space + " " + space + " ");
         System.out.println("|" + addPadding(getSide(3),maxChar) + "|" + addPadding(getSide(1),maxChar) + "|" + addPadding(getSide(5),maxChar) + "|" + addPadding(getSide(4),maxChar) + "|");
         System.out.println(" " + space + "|" + addPadding(getSide(2),maxChar) + "|" + space + " " + space + " ");
         System.out.println("");
-        System.out.println("-------------------------------------------------------------------------------");
+        System.out.println("------------------------------------------------------------------------------------------");
         System.out.println("");
 
     }
 
     public void setRandomChoice() {
 
-        randomChoiceIndex = (int)(Math.random() * ((choices.size()) + 1));
+        randomChoiceIndex = (int)(Math.random() * ((choices.size()-1) + 1));
 
     }
 
     public void setDiceSide(int choiceIndex, int sideNum) {
 
-        diceSides.add(sideNum - 1,choices.get(choiceIndex));
+        diceSides.set(sideNum - 1,choices.get(choiceIndex));
 
     }
 
@@ -350,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i=0; i < indexes.size(); i++) {
 
-            diceSides.set(i,choices.get(i));
+            diceSides.set(i,choices.get(indexes.get(i)));
 
         }
 
@@ -377,9 +397,11 @@ public class MainActivity extends AppCompatActivity {
 
         while (fillingIndexes.size() < 6) {
 
-            int tempChoice = (int)(Math.random() * ((5) + 1));
+            int tempChoice = 0 + (int)(Math.random() * ((choices.size()-1 - 0) + 1));
 
-            if (tempChoice != randomChoiceIndex) {
+            System.out.println(Arrays.toString(fillingIndexes.toArray()));
+
+            if (tempChoice != randomChoiceIndex && !fillingIndexes.contains(tempChoice)) {
 
                 fillingIndexes.add(tempChoice);
             }
@@ -414,15 +436,15 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("");
 
         lcd0.clear();
-        lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(0));
+        lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(2));
         lcd0.flush();
 
         lcd1.clear();
-        lcd1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(1));
+        lcd1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(0));
         lcd1.flush();
 
         lcd2.clear();
-        lcd2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(2));
+        lcd2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(4));
         lcd2.flush();
 
     }
