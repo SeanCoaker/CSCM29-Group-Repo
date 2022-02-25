@@ -3,8 +3,13 @@ package com.example.demoapp;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.demoapp.ui.main.MainFragment;
 import com.phidget22.*;
@@ -109,6 +114,26 @@ public class MainActivity extends AppCompatActivity {
         } catch (PhidgetException pe) {
             pe.printStackTrace();
         }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.mainmenu, menu);
+        MenuItem item = menu.findItem(R.id.autoRollSwitchMenu);
+        item.setActionView(R.layout.switch_layout);
+
+        SwitchCompat autoRollSwitch = item.getActionView().findViewById(R.id.autoRollSwitch);
+
+        autoRollSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                System.out.println("Switch ON");
+            } else {
+                System.out.println("Switch OFF");
+            }
+        });
+        return true;
     }
 
 

@@ -3,4 +3,5 @@
     <string name="add_choices">Add Choices...</string>
     <string name="choice_text_hint">Choices separated by commas</string>
     <string name="add">Add</string>
+    <string name="auto_roll">Auto Roll</string>
 </resources>
