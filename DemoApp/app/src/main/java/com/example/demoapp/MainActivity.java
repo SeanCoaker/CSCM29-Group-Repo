@@ -21,13 +21,21 @@ public class MainActivity extends AppCompatActivity {
     private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
     private ArrayList<String> choices = choicesSingleton.getChoices();
 
+    RCServo rcServo0;
+    RCServo rcServo1;
+    RCServo rcServo2;
+    RCServo rcServo3;
+
     Spatial spatial0; // Accelerometer
     int currentSideUp = 0; // Current dice side facing up - (1-6)
     int error = 30; // Maximum angle error in angle calculation
     int maxChar = 16; // Screen size in number of characters
+
     int maxRolls = 18; // Maximum number of rolls in auto roll
+    int movingSides = 4;
 
     ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
+    RCServo servos[];
 
     // Used to determine the current mode the dice is in
     public enum OperatingMode {
@@ -37,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     OperatingMode operatingMode; // Current dice mode
-    int randomChoiceIndex; // Stores the random choice made
+    int randomChoiceIndex = 0; // Stores the random choice made
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +72,16 @@ public class MainActivity extends AppCompatActivity {
 
             spatial0 = new Spatial();
 
+            RCServo rcServo0 = new RCServo();
+            RCServo rcServo1 = new RCServo();
+            RCServo rcServo2 = new RCServo();
+            RCServo rcServo3 = new RCServo();
+
+            rcServo0.setChannel(0);
+            rcServo1.setChannel(1);
+            rcServo2.setChannel(2);
+            rcServo3.setChannel(3);
+
             spatial0.addSpatialDataListener(new SpatialSpatialDataListener() {
                 public void onSpatialData(SpatialSpatialDataEvent e) {
 
@@ -82,8 +100,10 @@ public class MainActivity extends AppCompatActivity {
                     updateSideUp(xAngle,yAngle);
                     System.out.println("Top: " + currentSideUp);
                     System.out.println("----------");
-                    System.out.println("Selected Choice: " + choices.get(randomChoiceIndex));
                     System.out.println("----------");
+                    System.out.println(operatingMode);
+                    System.out.println(randomChoiceIndex);
+
 
 
                     switch(operatingMode) {
@@ -105,6 +125,21 @@ public class MainActivity extends AppCompatActivity {
             });
 
             spatial0.open(5000);
+
+            rcServo0.open(5000);
+            rcServo1.open(5000);
+            rcServo2.open(5000);
+            rcServo3.open(5000);
+
+            rcServo0.setTargetPosition(90);
+            rcServo0.setEngaged(true);
+            rcServo0.setTargetPosition(180);
+            rcServo0.setEngaged(true);
+
+
+            RCServo servos[] = {rcServo0,rcServo1,rcServo2,rcServo3};
+
+            //autoRoll();
 
         } catch (PhidgetException pe) {
             pe.printStackTrace();
@@ -230,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i=0; i < 6; i++) {
 
-            diceSides.add(i,choices.get(i));
+            diceSides.set(i,choices.get(i));
 
         }
 
@@ -240,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i=0; i < indexes.size(); i++) {
 
-            diceSides.add(i,choices.get(i));
+            diceSides.set(i,choices.get(i));
 
         }
 
@@ -268,11 +303,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        System.out.println(Arrays.toString(fillingIndexes.toArray()));
+
         setDiceSides(fillingIndexes);
 
         setDiceSide(randomChoiceIndex,currentSideUp);
 
         updateDice();
+
+        System.out.println(choices.get(randomChoiceIndex));
 
     }
 
@@ -282,13 +321,40 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void autoRoll() {
+    public void autoRoll() throws PhidgetException {
 
-        int sideToStopOn = (int)(Math.random() * ((5) + 1));
+        int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
-        // Generate a factor of 6 within the max rolls - could be 5 depending on whats selected - ie 1 doesnt need moving
+        System.out.println("Roll Number" + sideToStopOn);
 
-        // Loop For that amount - activating the respective servo
+        if (sideToStopOn != 1)  {
+
+            int currentSide = 1;
+
+            for (int i=1; i <= sideToStopOn; i++) {
+
+                servos[currentSide].setTargetPosition(180);
+                servos[currentSide].setEngaged(true);
+
+                servos[currentSide].setTargetPosition(90);
+                servos[currentSide].setEngaged(true);
+
+                if (currentSide == 4) {
+
+                    currentSide = 1;
+
+                } else {
+
+                    currentSide++;
+                }
+
+
+            }
+
+
+
+        }
+
 
     }
 
