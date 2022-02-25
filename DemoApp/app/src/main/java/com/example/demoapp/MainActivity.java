@@ -399,7 +399,6 @@ public class MainActivity extends AppCompatActivity {
 
             int tempChoice = 0 + (int)(Math.random() * ((choices.size()-1 - 0) + 1));
 
-            System.out.println(Arrays.toString(fillingIndexes.toArray()));
 
             if (tempChoice != randomChoiceIndex && !fillingIndexes.contains(tempChoice)) {
 
