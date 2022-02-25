@@ -21,7 +21,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private VoltageRatioInput voltageRatioInput0;
-    private LCD lcd0;
+
     private Random rand = new Random();
     private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
     private ArrayList<String> choices = choicesSingleton.getChoices();
@@ -31,16 +31,21 @@ public class MainActivity extends AppCompatActivity {
     RCServo rcServo2;
     RCServo rcServo3;
 
+    LCD lcd0;
+    LCD lcd1;
+    LCD lcd2;
+
     Spatial spatial0; // Accelerometer
     int currentSideUp = 0; // Current dice side facing up - (1-6)
     int error = 30; // Maximum angle error in angle calculation
     int maxChar = 16; // Screen size in number of characters
 
-    int maxRolls = 18; // Maximum number of rolls in auto roll
+    int maxRolls = 5; // Maximum number of rolls in auto roll
     int movingSides = 4;
 
     ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
     RCServo servos[];
+    Boolean autoRollEn = false;
 
     // Used to determine the current mode the dice is in
     public enum OperatingMode {
@@ -77,6 +82,14 @@ public class MainActivity extends AppCompatActivity {
 
             spatial0 = new Spatial();
 
+            lcd0 = new LCD();
+            lcd1 = new LCD();
+            lcd2 = new LCD();
+
+            lcd0.setDeviceSerialNumber(30679);
+            lcd1.setDeviceSerialNumber(30683);
+            lcd0.setDeviceSerialNumber(29773);
+
             RCServo rcServo0 = new RCServo();
             RCServo rcServo1 = new RCServo();
             RCServo rcServo2 = new RCServo();
@@ -99,32 +112,46 @@ public class MainActivity extends AppCompatActivity {
                     double xAngle = calculateAngleX(e.getAcceleration()[0],e.getAcceleration()[1],e.getAcceleration()[2]);
                     double yAngle = calculateAngleY(e.getAcceleration()[0],e.getAcceleration()[1],e.getAcceleration()[2]);
 
-                    System.out.println("X Angle:" + xAngle);
-                    System.out.println("Y Angle:" + yAngle);
-                    System.out.println("----------");
-                    updateSideUp(xAngle,yAngle);
-                    System.out.println("Top: " + currentSideUp);
-                    System.out.println("----------");
-                    System.out.println("----------");
-                    System.out.println(operatingMode);
-                    System.out.println(randomChoiceIndex);
+                    //System.out.println("X Angle:" + xAngle);
+                    //System.out.println("Y Angle:" + yAngle);
 
+                    if (autoRollEn == false) {
 
+                        System.out.println("----------");
+                        updateSideUp(xAngle,yAngle);
+                        System.out.println("Top: " + currentSideUp);
+                        System.out.println("----------");
+                        System.out.println("----------");
+                        System.out.println(operatingMode);
+                        System.out.println(randomChoiceIndex);
+
+                    }
 
                     switch(operatingMode) {
                         case INACTIVE:
                             break;
                         case SIXSIDENORMAL:
-                            updateDiceSixNormal();
+                            try {
+                                updateDiceSixNormal();
+                            } catch (PhidgetException phidgetException) {
+                                phidgetException.printStackTrace();
+                            }
                             break;
                         case SIXSIDEEXTENDED:
-                            updateDiceSixExtended();
+                            try {
+                                updateDiceSixExtended();
+                            } catch (PhidgetException phidgetException) {
+                                phidgetException.printStackTrace();
+                            }
 
                     }
 
-                    printDice();
+                    if (autoRollEn == false) {
+                        printDice();
+                    }
 
-                    updateDice();
+                    // updateDice
+                    //set data interval
 
                 }
             });
@@ -136,15 +163,24 @@ public class MainActivity extends AppCompatActivity {
             rcServo2.open(5000);
             rcServo3.open(5000);
 
-            rcServo0.setTargetPosition(90);
-            rcServo0.setEngaged(true);
-            rcServo0.setTargetPosition(180);
-            rcServo0.setEngaged(true);
+            lcd0.open(5000);
+            lcd1.open(5000);
+            lcd2.open(5000);
 
+            lcd0.setBacklight(0.5);
+            lcd0.setContrast(0.5);
 
-            RCServo servos[] = {rcServo0,rcServo1,rcServo2,rcServo3};
+            lcd1.setBacklight(0.5);
+            lcd1.setContrast(0.5);
 
-            //autoRoll();
+            lcd2.setBacklight(0.5);
+            lcd2.setContrast(0.5);
+
+            servos = new RCServo[4];
+            servos[0] = rcServo0;
+            servos[1] = rcServo1;
+            servos[2] = rcServo2;
+            servos[3] = rcServo3;
 
         } catch (PhidgetException pe) {
             pe.printStackTrace();
@@ -164,6 +200,13 @@ public class MainActivity extends AppCompatActivity {
         autoRollSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 System.out.println("Switch ON");
+
+                try {
+                    autoRoll();
+                } catch (PhidgetException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             } else {
                 System.out.println("Switch OFF");
             }
@@ -306,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void updateDiceSixNormal () {
+    public void updateDiceSixNormal () throws PhidgetException {
 
         setDiceSides();
         updateDice();
@@ -314,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void updateDiceSixExtended () {
+    public void updateDiceSixExtended () throws PhidgetException {
 
         ArrayList fillingIndexes = new ArrayList<>();
 
@@ -340,13 +383,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void updateDice() {
+    public void updateDice() throws PhidgetException {
 
-        // Update Screens
+        lcd0.clear();
+        lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(0));
+        lcd0.flush();
+
+        lcd1.clear();
+        lcd1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(1));
+        lcd1.flush();
+
+        lcd2.clear();
+        lcd2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(2));
+        lcd2.flush();
 
     }
 
-    public void autoRoll() throws PhidgetException {
+    public void autoRoll() throws PhidgetException, InterruptedException {
+
+        autoRollEn = true;
 
         int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
@@ -358,11 +413,21 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i=1; i <= sideToStopOn; i++) {
 
-                servos[currentSide].setTargetPosition(180);
-                servos[currentSide].setEngaged(true);
+                servos[currentSide-1].setTargetPosition(0);
+                servos[currentSide-1].setEngaged(true);
 
-                servos[currentSide].setTargetPosition(90);
-                servos[currentSide].setEngaged(true);
+
+                Thread.sleep(1000);
+
+                servos[currentSide-1].setTargetPosition(180);
+                servos[currentSide-1].setEngaged(true);
+
+                Thread.sleep(1000);
+
+                servos[currentSide-1].setTargetPosition(0);
+                servos[currentSide-1].setEngaged(true);
+
+                Thread.sleep(1000);
 
                 if (currentSide == 4) {
 
@@ -379,6 +444,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
+        autoRollEn = false;
 
 
     }
