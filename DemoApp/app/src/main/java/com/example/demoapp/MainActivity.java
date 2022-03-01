@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     int error = 30; // Maximum angle error in angle calculation
     int maxChar = 20; // Screen size in number of characters
     int maxRolls = 5; // Maximum number of rolls in auto roll
-    int movingSides = 4;
+
+    Boolean screenStatus = false;
 
     ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
 
@@ -65,8 +66,10 @@ public class MainActivity extends AppCompatActivity {
         SIXSIDEEXTENDED,
     }
 
-    OperatingMode operatingMode; // Current dice mode
+    OperatingMode operatingMode = OperatingMode.INACTIVE; // Current dice mode
     int randomChoiceIndex = 0; // Stores the random choice made
+
+    OperatingMode lastMode = OperatingMode.INACTIVE;
 
 
     /*
@@ -168,9 +171,15 @@ public class MainActivity extends AppCompatActivity {
 
                     switch(operatingMode) {
                         case INACTIVE:
+                            try {
+                                turnOffScreens();
+                            } catch (PhidgetException phidgetException) {
+                                phidgetException.printStackTrace();
+                            }
                             break;
                         case SIXSIDENORMAL:
                             try {
+                                turnOnScreens();
                                 updateDiceSixNormal();
                             } catch (PhidgetException phidgetException) {
                                 phidgetException.printStackTrace();
@@ -178,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case SIXSIDEEXTENDED:
                             try {
+                                turnOnScreens();
                                 updateDiceSixExtended();
                             } catch (PhidgetException phidgetException) {
                                 phidgetException.printStackTrace();
@@ -204,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
             servos[1] = rcServo1;
             servos[2] = rcServo2;
             servos[3] = rcServo3;
+
+            screenStatus = true;
 
         } catch (PhidgetException pe) {
             pe.printStackTrace();
@@ -272,6 +284,56 @@ public class MainActivity extends AppCompatActivity {
         } catch (PhidgetException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        operatingMode = lastMode;
+
+        try {
+
+            if (operatingMode != OperatingMode.INACTIVE) {
+
+                turnOnScreens();
+
+            }
+
+        } catch (PhidgetException e) {
+            e.printStackTrace();
+        }
+
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        lastMode = operatingMode;
+        operatingMode = OperatingMode.INACTIVE;
+
+        try {
+
+                turnOffScreens();
+
+        } catch (PhidgetException e) {
+            e.printStackTrace();
+        }
+
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        lastMode = operatingMode;
+        operatingMode = OperatingMode.INACTIVE;
+
+        try {
+            turnOffScreens();
+        } catch (PhidgetException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public double calculateAngleX(double x,double y,double z) {
@@ -428,11 +490,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateDice() throws PhidgetException {
+        if (!autoRollEn) {
 
-        System.out.println("-----------------------------------");
-        System.out.println("----------Screens Update-----------");
-        System.out.println("-----------------------------------");
-        System.out.println("");
+            System.out.println("-----------------------------------");
+            System.out.println("----------Screens Update-----------");
+            System.out.println("-----------------------------------");
+            System.out.println("");
+        }
 
         lcd0.clear();
         lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(2));
@@ -447,6 +511,35 @@ public class MainActivity extends AppCompatActivity {
         lcd2.flush();
 
     }
+
+    public void turnOffScreens() throws PhidgetException {
+
+        if (screenStatus == true) {
+
+            lcd0.setBacklight(0);
+            lcd1.setBacklight(0);
+            lcd2.setBacklight(0);
+
+            screenStatus = false;
+
+        }
+
+    }
+
+    public void turnOnScreens() throws PhidgetException {
+
+        if (screenStatus == false) {
+
+            lcd0.setBacklight(0.5);
+            lcd1.setBacklight(0.5);
+            lcd2.setBacklight(0.5);
+
+            screenStatus = true;
+        }
+
+    }
+
+
 
     public void autoRoll() throws PhidgetException, InterruptedException {
 
