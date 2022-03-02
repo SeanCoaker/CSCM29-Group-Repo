@@ -506,15 +506,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         lcd0.clear();
-        lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(2));
+        lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(diceSides.get(2),maxChar));
         lcd0.flush();
 
         lcd1.clear();
-        lcd1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(0));
+        lcd1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(diceSides.get(0),maxChar));
         lcd1.flush();
 
         lcd2.clear();
-        lcd2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, diceSides.get(4));
+        lcd2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(diceSides.get(4),maxChar));
         lcd2.flush();
 
     }
