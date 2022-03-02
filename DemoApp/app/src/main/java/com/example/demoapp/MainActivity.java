@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -53,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     int maxChar = 20; // Screen size in number of characters
     int maxRolls = 5; // Maximum number of rolls in auto roll
 
-    Boolean screenStatus = false;
+    Boolean screenOn = true;
 
     ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
 
@@ -67,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     OperatingMode operatingMode = OperatingMode.INACTIVE; // Current dice mode
-    int randomChoiceIndex = 0; // Stores the random choice made
+    OperatingMode lastOperatingMode = OperatingMode.INACTIVE;
 
-    OperatingMode lastMode = OperatingMode.INACTIVE;
+    int randomChoiceIndex = 0; // Stores the random choice made
 
 
     /*
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
 
-            Net.addServer("", "172.19.80.1", 5661, "", 0);
+            Net.addServer("", "172.24.48.1", 5661, "", 0);
 
             //Create your Phidget channels
 
@@ -179,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case SIXSIDENORMAL:
                             try {
+                                lastOperatingMode = OperatingMode.SIXSIDENORMAL;
                                 turnOnScreens();
                                 updateDiceSixNormal();
                             } catch (PhidgetException phidgetException) {
@@ -187,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case SIXSIDEEXTENDED:
                             try {
+                                lastOperatingMode = OperatingMode.SIXSIDEEXTENDED;
                                 turnOnScreens();
                                 updateDiceSixExtended();
                             } catch (PhidgetException phidgetException) {
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
             servos[2] = rcServo2;
             servos[3] = rcServo3;
 
-            screenStatus = true;
+            screenOn = true;
 
         } catch (PhidgetException pe) {
             pe.printStackTrace();
@@ -290,51 +290,58 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        operatingMode = lastMode;
+        System.out.println("-----------------------------------");
+        System.out.println("--------onResume Activated---------");
+        System.out.println("-----------------------------------");
 
-        try {
+        System.out.println("Last Operating Mode: " + lastOperatingMode);
 
-            if (operatingMode != OperatingMode.INACTIVE) {
-
-                turnOnScreens();
-
-            }
-
-        } catch (PhidgetException e) {
-            e.printStackTrace();
-        }
+        operatingMode = lastOperatingMode;
 
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        System.out.println("-----------------------------------");
+        System.out.println("--------onRestart Activated--------");
+        System.out.println("-----------------------------------");
+
+        System.out.println("Last Operating Mode: " + lastOperatingMode);
+
+        operatingMode = lastOperatingMode;
+
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
 
-        lastMode = operatingMode;
+        System.out.println("-----------------------------------");
+        System.out.println("---------onPause Activated---------");
+        System.out.println("-----------------------------------");
+
         operatingMode = OperatingMode.INACTIVE;
 
-        try {
-
-                turnOffScreens();
-
-        } catch (PhidgetException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Last Operating Mode: " + lastOperatingMode);
 
     }
     @Override
     protected void onStop() {
         super.onStop();
 
-        lastMode = operatingMode;
+        System.out.println("-----------------------------------");
+        System.out.println("---------onStop Activated----------");
+        System.out.println("-----------------------------------");
+
         operatingMode = OperatingMode.INACTIVE;
 
-        try {
-            turnOffScreens();
-        } catch (PhidgetException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Last Operating Mode: " + lastOperatingMode);
 
     }
+
+
 
     public double calculateAngleX(double x,double y,double z) {
 
@@ -514,13 +521,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void turnOffScreens() throws PhidgetException {
 
-        if (screenStatus == true) {
+        if (screenOn == true) {
 
             lcd0.setBacklight(0);
             lcd1.setBacklight(0);
             lcd2.setBacklight(0);
 
-            screenStatus = false;
+            screenOn = false;
 
         }
 
@@ -528,13 +535,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void turnOnScreens() throws PhidgetException {
 
-        if (screenStatus == false) {
+        if (screenOn == false) {
 
             lcd0.setBacklight(0.5);
             lcd1.setBacklight(0.5);
             lcd2.setBacklight(0.5);
 
-            screenStatus = true;
+            screenOn = true;
         }
 
     }
