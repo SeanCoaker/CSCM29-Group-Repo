@@ -550,6 +550,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void autoRoll() throws PhidgetException, InterruptedException {
 
+        if (servos == null || servos.length == 0) return;
+
         System.out.println("-----------------------------------");
         System.out.println("---------AutoRoll Activated--------");
         System.out.println("-----------------------------------");

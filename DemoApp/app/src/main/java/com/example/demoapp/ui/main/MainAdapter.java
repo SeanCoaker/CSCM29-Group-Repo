@@ -7,6 +7,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.demoapp.ChoicesSingleton;
@@ -17,9 +19,10 @@ import java.util.ArrayList;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
-    private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
+    private final ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
     private final ArrayList<String> choices = choicesSingleton.getChoices();
     private final com.example.demoapp.ui.main.MainFragment parentFragment;
+    private CardView selectedCard;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView choiceTextView;
@@ -32,12 +35,18 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
             ImageButton crossButton = view.findViewById(R.id.crossButton);
             crossButton.setOnClickListener(this);
+
+            CardView listCard = view.findViewById(R.id.listCard);
+            listCard.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             if (view.getId() == R.id.crossButton) {
-                removeItem(getAdapterPosition());
+                CardView listCard = (CardView) view.getParent().getParent();
+                removeItem(getAdapterPosition(), listCard);
+            } else if (view.getId() == R.id.listCard) {
+                selectCardItem(view.findViewById(R.id.listCard));
             }
         }
     }
@@ -71,7 +80,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         return choices.size();
     }
 
-    public void removeItem(int pos) {
+    public void removeItem(int pos, CardView card) {
         choicesSingleton.removeChoice(pos);
         notifyItemRemoved(pos);
         if (choicesSingleton.getChoices().size() == 6) {
@@ -82,5 +91,23 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         } else {
             parentFragment.updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
         }
+
+        if (selectedCard == card) {
+            selectedCard = null;
+        }
+    }
+
+    public void selectCardItem(CardView card) {
+        if (selectedCard != null) {
+            selectedCard.findViewById(R.id.crossButton).setBackgroundTintList(
+                    selectedCard.getContext().getColorStateList(R.color.white));
+            selectedCard.setCardBackgroundColor(ContextCompat.getColor(
+                    selectedCard.getContext(), R.color.white));
+        }
+
+        card.findViewById(R.id.crossButton).setBackgroundTintList(
+                card.getContext().getColorStateList(R.color.pistachio));
+        card.setCardBackgroundColor(ContextCompat.getColor(card.getContext(), R.color.pistachio));
+        selectedCard = card;
     }
 }
