@@ -19,11 +19,16 @@ import com.phidget22.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
 
 /**
  * Main Activity Class
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
     /**
      * Phidget Devices
@@ -58,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private int error = 30; // Maximum angle error in angle calculation
     private int maxChar = 20; // Screen size in number of characters
     private int maxRolls = 5; // Maximum number of rolls in auto roll
+    private int accelerometerThreshold = 12; // Threshold value for accelerometer required to detect shake
 
     Boolean isScreensOn = true; // If screens are currently on
     Boolean isAutoRollEngaged = false; // If auto roll has been activated
@@ -78,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
     LCDScreenSize screenSize = LCDScreenSize.DIMENSIONS_2X16; // Screen size for all screens
 
+    SensorManager mSensorManager; // Android sensor manager
+    Sensor mSensor; // Android accelerometer sensor
 
     /**
      * On Create
@@ -95,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.container, MainFragment.newInstance(this))
                     .commitNow();
         }
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE); // Initialise sensor manager
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER); // Initialise accelerometer
 
         try {
 
@@ -368,8 +379,9 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("-----------------------------------");
 
         System.out.println("Last Operating Mode: " + lastOperatingMode);
-
         operatingMode = lastOperatingMode;
+
+        mSensorManager.registerListener((SensorEventListener)this, mSensor, SensorManager.SENSOR_DELAY_UI);
 
     }
 
@@ -396,8 +408,9 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("-----------------------------------");
 
         operatingMode = OperatingMode.INACTIVE;
-
         System.out.println("Last Operating Mode: " + lastOperatingMode);
+
+        mSensorManager.unregisterListener((SensorEventListener)this, mSensor);
 
     }
     @Override
@@ -672,7 +685,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public void autoRoll() throws PhidgetException, InterruptedException {
 
         // Don't auto roll if servos are not connected
@@ -739,6 +751,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     public void init() {
 
         diceSides.add(addPadding("One", maxChar));
@@ -754,6 +767,25 @@ public class MainActivity extends AppCompatActivity {
         setRandomChoice();
 
     }
+
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+
+    public void onSensorChanged(SensorEvent event) {
+
+        if ((Math.abs(event.values[0]) > accelerometerThreshold) || (Math.abs(event.values[1]) > accelerometerThreshold) || (Math.abs(event.values[2]) > accelerometerThreshold)) {
+
+            System.out.println("-----------------------------------");
+            System.out.println("-----------Shake Detected----------");
+            System.out.println("-----------------------------------");
+
+        }
+
+    }
+
 
     public void setOperatingMode(OperatingMode op) {
         this.operatingMode = op;
