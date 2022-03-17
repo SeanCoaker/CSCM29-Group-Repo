@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rcServoSide6.open(5000);
 
 
-            servos = new RCServo[4];
+            servos = new RCServo[6];
             servos[0] = rcServoSide1;
             servos[1] = rcServoSide2;
             servos[2] = rcServoSide3;
@@ -691,7 +691,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void autoRoll() throws PhidgetException, InterruptedException {
 
-        // Don't auto roll if servos are not connected
         if (servos == null || servos.length == 0) return;
 
         System.out.println("-----------------------------------");
@@ -700,6 +699,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         System.out.println("");
 
         isAutoRollEngaged = true;
+        isShakeDetected = false;
 
         while(!isShakeDetected){
 
@@ -801,18 +801,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 isShakeDetected = false;
 
             }
-
-            if (shakeTimer == 5) {
-
-                shakeTimer = 0;
-
-            } else {
-
-                shakeTimer++;
-
-            }
-
-            System.out.println(isShakeDetected);
 
         }
 
