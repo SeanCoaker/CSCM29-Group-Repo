@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int currentSideUp = 1; // Current dice side facing up - (1-6)
     private int lastSideUp = 1; // Side facing up prior to current side up
     private int error = 30; // Maximum angle error in angle calculation
-    private int maxChar = 20; // Screen size in number of characters
+    private int maxChar = 16; // Screen size in number of characters
     private int maxRolls = 5; // Maximum number of rolls in auto roll
     private int accelerometerThreshold = 12; // Threshold value for accelerometer required to detect shake
 
@@ -86,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     SensorManager mSensorManager; // Android sensor manager
     Sensor mSensor; // Android accelerometer sensor
+
+    Boolean isShakeDetected = false;
+    int timeBetweenShake = 3;
+    int shakeTimer = 0;
 
     /**
      * On Create
@@ -697,6 +701,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         isAutoRollEngaged = true;
 
+        while(!isShakeDetected){
+
+        }
+
         int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
         System.out.println("-----------------------------------");
@@ -748,6 +756,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         System.out.println("");
 
         isAutoRollEngaged = false;
+        isShakeDetected = false;
 
     }
 
@@ -781,6 +790,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("-----------------------------------");
             System.out.println("-----------Shake Detected----------");
             System.out.println("-----------------------------------");
+
+            if (shakeTimer == timeBetweenShake) {
+
+                isShakeDetected = true;
+
+
+            } else {
+
+                isShakeDetected = false;
+
+            }
+
+            if (shakeTimer == 5) {
+
+                shakeTimer = 0;
+
+            } else {
+
+                shakeTimer++;
+
+            }
+
+            System.out.println(isShakeDetected);
 
         }
 
