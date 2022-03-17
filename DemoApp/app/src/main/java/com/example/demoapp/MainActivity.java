@@ -1,3 +1,7 @@
+/**
+ * Imports
+ */
+
 package com.example.demoapp;
 
 import android.content.Context;
@@ -14,48 +18,51 @@ import com.phidget22.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
+
+/**
+ * Main Activity Class
+ */
 public class MainActivity extends AppCompatActivity {
 
-    /*
-     / Phidgets Devices
-    */
+    /**
+     * Phidget Devices
+     */
 
-    VoltageRatioInput voltageRatioInput0;
+    RCServo rcServoSide1;
+    RCServo rcServoSide2;
+    RCServo rcServoSide3;
+    RCServo rcServoSide4;
+    RCServo rcServoSide5;
+    RCServo rcServoSide6;
+    RCServo servos[];
 
-    RCServo rcServo0;
-    RCServo rcServo1;
-    RCServo rcServo2;
-    RCServo rcServo3;
-
-    LCD lcd0;
-    LCD lcd1;
-    LCD lcd2;
+    LCD lcdSide1;
+    LCD lcdSide2;
+    LCD lcdSide3;
+    LCD lcdSide4;
+    LCD lcdSide5;
+    LCD lcdSide6;
 
     Spatial spatial0; // Accelerometer
 
-    RCServo servos[];
+    /**
+     * App Global Variables
+     */
 
-    /*
-     / App Global Variables
-    */
-
-    private Random rand = new Random();
     private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
     private ArrayList<String> choices = choicesSingleton.getChoices();
 
-    int currentSideUp = 1; // Current dice side facing up - (1-6)
-    int lastSideUp = 1;
-    int error = 30; // Maximum angle error in angle calculation
-    int maxChar = 20; // Screen size in number of characters
-    int maxRolls = 5; // Maximum number of rolls in auto roll
+    private int currentSideUp = 1; // Current dice side facing up - (1-6)
+    private int lastSideUp = 1; // Side facing up prior to current side up
+    private int error = 30; // Maximum angle error in angle calculation
+    private int maxChar = 20; // Screen size in number of characters
+    private int maxRolls = 5; // Maximum number of rolls in auto roll
 
-    Boolean screenOn = true;
+    Boolean isScreensOn = true; // If screens are currently on
+    Boolean isAutoRollEngaged = false; // If auto roll has been activated
 
-    ArrayList<String> diceSides = new ArrayList<>(6); // Screen output text
-
-    Boolean autoRollEn = false;
+    ArrayList<String> diceSides = new ArrayList<>(6); // Screen output texts
 
     // Used to determine the current mode the dice is in
     public enum OperatingMode {
@@ -64,21 +71,24 @@ public class MainActivity extends AppCompatActivity {
         SIXSIDEEXTENDED,
     }
 
-    OperatingMode operatingMode = OperatingMode.INACTIVE; // Current dice mode
-    OperatingMode lastOperatingMode = OperatingMode.INACTIVE;
+    OperatingMode operatingMode = OperatingMode.INACTIVE; // Current dice operating mode
+    OperatingMode lastOperatingMode = OperatingMode.INACTIVE; // Previous dice operating mode
 
-    int randomChoiceIndex = 0; // Stores the random choice made
+    int randomChoiceIndex = 0; // Stores the random choice of option
+
+    LCDScreenSize screenSize = LCDScreenSize.DIMENSIONS_2X16; // Screen size for all screens
 
 
-    /*
-     / On Create
-    */
+    /**
+     * On Create
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        init();
+        init(); // Initialise the dice
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -88,53 +98,106 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-            //Enable server discovery to list remote Phidgets
+            // Enable server discovery to list remote Phidgets
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
-
             Net.addServer("", "172.21.144.1", 5661, "", 0);
 
-            //Create your Phidget channels
+            /**
+             * Instantiate Phidgets
+             */
 
+            // Spatial Phidget Setup
             spatial0 = new Spatial();
 
-            rcServo0 = new RCServo();
-            rcServo1 = new RCServo();
-            rcServo2 = new RCServo();
-            rcServo3 = new RCServo();
 
-            rcServo0.setChannel(0);
-            rcServo1.setChannel(1);
-            rcServo2.setChannel(2);
-            rcServo3.setChannel(3);
+            // Servos Setup
+            rcServoSide1 = new RCServo();
+            rcServoSide2 = new RCServo();
+            rcServoSide3 = new RCServo();
+            rcServoSide4 = new RCServo();
+            rcServoSide5 = new RCServo();
+            rcServoSide6 = new RCServo();
 
-            lcd0 = new LCD();
-            lcd0.setChannel(0);
-            lcd0.setDeviceSerialNumber(30683);
-            lcd0.open(5000);
-            lcd0.setBacklight(0.5);
-            lcd0.setContrast(0.5);
-            lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-3",maxChar));
-            lcd0.flush();
+            rcServoSide1.setChannel(0);
+            rcServoSide2.setChannel(1);
+            rcServoSide3.setChannel(2);
+            rcServoSide4.setChannel(3);
+            rcServoSide5.setChannel(4);
+            rcServoSide6.setChannel(5);
 
-            lcd1 = new LCD();
-            lcd1.setChannel(0);
-            lcd1.setDeviceSerialNumber(30679);
-            lcd1.open(5000);
-            lcd1.setBacklight(0.5);
-            lcd1.setContrast(0.5);
-            lcd1.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-1",maxChar));
-            lcd1.flush();
 
-            lcd2 = new LCD();
-            lcd2.setChannel(0);
-            lcd2.setDeviceSerialNumber(29773);
-            lcd2.open(5000);
-            lcd2.setBacklight(0.5);
-            lcd2.setContrast(0.5);
-            lcd2.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-5",maxChar));
-            lcd2.flush();
+            // LCD Side 1 Setup
+            lcdSide1 = new LCD();
+            lcdSide1.setChannel(0);
+            lcdSide1.setDeviceSerialNumber(30683);
+            lcdSide1.open(5000);
+            lcdSide1.setBacklight(0.5);
+            lcdSide1.setContrast(0.5);
+            lcdSide1.setScreenSize(screenSize);
+            lcdSide1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-1",maxChar));
+            lcdSide1.flush();
 
+
+            // LCD Side 2 Setup
+            lcdSide2 = new LCD();
+            lcdSide2.setChannel(0);
+            lcdSide2.setDeviceSerialNumber(30679);
+            lcdSide2.open(5000);
+            lcdSide2.setBacklight(0.5);
+            lcdSide2.setContrast(0.5);
+            lcdSide2.setScreenSize(screenSize);
+            lcdSide2.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-2",maxChar));
+            lcdSide2.flush();
+
+            // LCD Side 3 Setup
+            lcdSide3 = new LCD();
+            lcdSide3.setChannel(0);
+            lcdSide3.setDeviceSerialNumber(29773);
+            lcdSide3.open(5000);
+            lcdSide3.setBacklight(0.5);
+            lcdSide3.setContrast(0.5);
+            lcdSide1.setScreenSize(screenSize);
+            lcdSide3.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-3",maxChar));
+            lcdSide3.flush();
+
+            // LCD Side 4 Setup
+            lcdSide4 = new LCD();
+            lcdSide4.setChannel(0);
+            lcdSide4.setDeviceSerialNumber(12345);
+            lcdSide4.open(5000);
+            lcdSide4.setBacklight(0.5);
+            lcdSide4.setContrast(0.5);
+            lcdSide4.setScreenSize(screenSize);
+            lcdSide4.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-4",maxChar));
+            lcdSide4.flush();
+
+            // LCD Side 5 Setup
+            lcdSide5 = new LCD();
+            lcdSide5.setChannel(0);
+            lcdSide5.setDeviceSerialNumber(12345);
+            lcdSide5.open(5000);
+            lcdSide5.setBacklight(0.5);
+            lcdSide5.setContrast(0.5);
+            lcdSide5.setScreenSize(screenSize);
+            lcdSide5.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-5",maxChar));
+            lcdSide5.flush();
+
+
+            // LCD Side 6 Setup
+            lcdSide6 = new LCD();
+            lcdSide6.setChannel(0);
+            lcdSide6.setDeviceSerialNumber(12345);
+            lcdSide6.open(5000);
+            lcdSide6.setBacklight(0.5);
+            lcdSide6.setContrast(0.5);
+            lcdSide6.setScreenSize(screenSize);
+            lcdSide6.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-6",maxChar));
+            lcdSide6.flush();
+
+            /**
+             * Spatial Phidget Listener
+             */
             spatial0.addSpatialDataListener(new SpatialSpatialDataListener() {
                 public void onSpatialData(SpatialSpatialDataEvent e) {
 
@@ -152,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
                     updateSideUp(xAngle,yAngle);
 
-                    if (autoRollEn == false) {
+                    if (isAutoRollEngaged == false) {
 
                         System.out.println("-----------------------------------");
                         System.out.println("Current Top: " + currentSideUp);
@@ -195,27 +258,34 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    if (autoRollEn == false) {
+                    if (isAutoRollEngaged == false) {
                         printDice();
                     }
 
                 }
             });
 
+
             spatial0.open(5000);
 
-            rcServo0.open(5000);
-            rcServo1.open(5000);
-            rcServo2.open(5000);
-            rcServo3.open(5000);
+
+            rcServoSide1.open(5000);
+            rcServoSide2.open(5000);
+            rcServoSide3.open(5000);
+            rcServoSide4.open(5000);
+            rcServoSide5.open(5000);
+            rcServoSide6.open(5000);
+
 
             servos = new RCServo[4];
-            servos[0] = rcServo0;
-            servos[1] = rcServo1;
-            servos[2] = rcServo2;
-            servos[3] = rcServo3;
+            servos[0] = rcServoSide1;
+            servos[1] = rcServoSide2;
+            servos[2] = rcServoSide3;
+            servos[3] = rcServoSide4;
+            servos[4] = rcServoSide5;
+            servos[5] = rcServoSide6;
 
-            screenOn = true;
+            isScreensOn = true;
 
         } catch (PhidgetException pe) {
             pe.printStackTrace();
@@ -269,14 +339,17 @@ public class MainActivity extends AppCompatActivity {
 
             spatial0.close();
 
-            lcd0.close();
-            lcd1.close();
-            lcd2.close();
+            lcdSide1.close();
+            lcdSide2.close();
+            lcdSide3.close();
+            lcdSide4.close();
+            lcdSide5.close();
+            lcdSide6.close();
 
-            rcServo0.close();
-            rcServo1.close();
-            rcServo2.close();
-            rcServo3.close();
+            rcServoSide1.close();
+            rcServoSide2.close();
+            rcServoSide3.close();
+            rcServoSide4.close();
 
 
             Log.d("onDestroy: ", "Closed channels.");
@@ -342,17 +415,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Calculate x angle from accelerometer
+     */
     public double calculateAngleX(double x,double y,double z) {
 
         return Math.atan2(y , z) * 57.3;
     }
 
+
+    /**
+     * Calculate y angle from accelerometer
+     */
     public double calculateAngleY(double x,double y,double z) {
 
         return Math.atan2((- x) , Math.sqrt(y * y + z * z)) * 57.3;
     }
 
+
+    /**
+     * Calculate current side up using tilt angles from accelerometer data
+     */
     public void updateSideUp(double aX, double aY) {
 
         if ( ((aX >= (0-error))&&(aX <= (0+error))) && ((aY >= (0-error))&&(aY <= (0+error))) ) {
@@ -385,17 +468,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    /**
+     * Adds padding to left and right side of a string to centre text on a screen
+     */
     public String addPadding(String string, int maxChar) {
 
         return String.format("%-" + maxChar  + "s", String.format("%" + (string.length() + (maxChar - string.length()) / 2) + "s", string));
 
     }
 
+
+    /**
+     * Return side value
+     */
     public String getSide(int side) {
 
         return diceSides.get(side-1);
     }
 
+    /**
+     * Prints the current state of text displayed on the dice
+     */
     public void printDice() {
 
         char[] arr = new char[maxChar];
@@ -413,18 +507,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Sets the random choice
+     */
     public void setRandomChoice() {
 
         randomChoiceIndex = (int)(Math.random() * ((choices.size()-1) + 1));
 
     }
 
+    /**
+     * Sets side text
+     */
     public void setDiceSide(int choiceIndex, int sideNum) {
 
         diceSides.set(sideNum - 1,choices.get(choiceIndex));
 
     }
 
+    /**
+     * Sets all sides text
+     */
     public void setDiceSides() {
 
         for (int i=0; i < 6; i++) {
@@ -435,6 +538,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Sets all sides text
+     */
     public void setDiceSides(ArrayList<Integer> indexes) {
 
         for (int i=0; i < indexes.size(); i++) {
@@ -497,7 +603,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateDice() throws PhidgetException {
-        if (!autoRollEn) {
+        if (!isAutoRollEngaged) {
 
             System.out.println("-----------------------------------");
             System.out.println("----------Screens Update-----------");
@@ -505,29 +611,45 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("");
         }
 
-        lcd0.clear();
-        lcd0.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(diceSides.get(2),maxChar));
-        lcd0.flush();
+        lcdSide1.clear();
+        lcdSide1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(getSide(1), maxChar));
+        lcdSide1.flush();
 
-        lcd1.clear();
-        lcd1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(diceSides.get(0),maxChar));
-        lcd1.flush();
+        lcdSide2.clear();
+        lcdSide2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(getSide(2), maxChar));
+        lcdSide2.flush();
 
-        lcd2.clear();
-        lcd2.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(diceSides.get(4),maxChar));
-        lcd2.flush();
+        lcdSide3.clear();
+        lcdSide3.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(getSide(3), maxChar));
+        lcdSide3.flush();
+
+        lcdSide4.clear();
+        lcdSide4.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(getSide(4), maxChar));
+        lcdSide4.flush();
+
+        lcdSide5.clear();
+        lcdSide5.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(getSide(5), maxChar));
+        lcdSide5.flush();
+
+        lcdSide6.clear();
+        lcdSide6.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding(getSide(6), maxChar));
+        lcdSide6.flush();
 
     }
 
     public void turnOffScreens() throws PhidgetException {
 
-        if (screenOn == true) {
+        if (isScreensOn == true) {
 
-            lcd0.setBacklight(0);
-            lcd1.setBacklight(0);
-            lcd2.setBacklight(0);
+            // Turn screens off
+            lcdSide1.setBacklight(0);
+            lcdSide2.setBacklight(0);
+            lcdSide3.setBacklight(0);
+            lcdSide4.setBacklight(0);
+            lcdSide5.setBacklight(0);
+            lcdSide6.setBacklight(0);
 
-            screenOn = false;
+            isScreensOn = false;
 
         }
 
@@ -535,13 +657,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void turnOnScreens() throws PhidgetException {
 
-        if (screenOn == false) {
+        if (isScreensOn == false) {
 
-            lcd0.setBacklight(0.5);
-            lcd1.setBacklight(0.5);
-            lcd2.setBacklight(0.5);
+            lcdSide1.setBacklight(0.5);
+            lcdSide2.setBacklight(0.5);
+            lcdSide3.setBacklight(0.5);
+            lcdSide4.setBacklight(0.5);
+            lcdSide5.setBacklight(0.5);
+            lcdSide6.setBacklight(0.5);
 
-            screenOn = true;
+            isScreensOn = true;
         }
 
     }
@@ -550,6 +675,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void autoRoll() throws PhidgetException, InterruptedException {
 
+        // Don't auto roll if servos are not connected
         if (servos == null || servos.length == 0) return;
 
         System.out.println("-----------------------------------");
@@ -557,7 +683,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("-----------------------------------");
         System.out.println("");
 
-        autoRollEn = true;
+        isAutoRollEngaged = true;
 
         int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
@@ -577,7 +703,6 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("-----------------------------------");
                 System.out.println("");
 
-
                 servos[currentSide-1].setTargetPosition(0);
                 servos[currentSide-1].setEngaged(true);
                 Thread.sleep(1000);
@@ -585,7 +710,6 @@ public class MainActivity extends AppCompatActivity {
                 servos[currentSide-1].setTargetPosition(180);
                 servos[currentSide-1].setEngaged(true);
                 Thread.sleep(1000);
-
 
                 servos[currentSide-1].setTargetPosition(0);
                 servos[currentSide-1].setEngaged(true);
@@ -611,7 +735,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("-----------------------------------");
         System.out.println("");
 
-        autoRollEn = false;
+        isAutoRollEngaged = false;
 
     }
 
