@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
 
-            Net.addServer("", "172.24.48.1", 5661, "", 0);
+            Net.addServer("", "172.21.144.1", 5661, "", 0);
 
             //Create your Phidget channels
 
