@@ -128,6 +128,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         adapter.notifyItemRangeRemoved(0, len);
         updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
         setCardSelected(false);
+
+        MainAdapter mainAdapter = (MainAdapter) adapter;
+        mainAdapter.nullifySelectedCard();
     }
 
     public void setSelectedIndex(int index) {

@@ -137,4 +137,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         parentFragment.setSelectedIndex(selectedIndex);
         parentFragment.setCardSelected(true);
     }
+
+    public void nullifySelectedCard() {
+        resetSelectedCardDisplay();
+        selectedCard = null;
+    }
 }
