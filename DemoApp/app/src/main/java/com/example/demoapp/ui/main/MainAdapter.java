@@ -100,9 +100,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
     public void selectCardItem(CardView card) {
 
-        if (selectedCard != null) {
-            resetSelectedCardDisplay();
-        }
+        resetSelectedCardDisplay();
 
         if (selectedCard == card) {
             selectedCard = null;
@@ -117,6 +115,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     }
 
     public void resetSelectedCardDisplay() {
+        if (selectedCard == null) return;
         selectedCard.findViewById(R.id.crossButton).setBackgroundTintList(
                 selectedCard.getContext().getColorStateList(R.color.white));
         selectedCard.setCardBackgroundColor(ContextCompat.getColor(
@@ -136,5 +135,10 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         int selectedIndex = choices.indexOf(choice);
         parentFragment.setSelectedIndex(selectedIndex);
         parentFragment.setCardSelected(true);
+    }
+
+    public void nullifySelectedCard() {
+        resetSelectedCardDisplay();
+        selectedCard = null;
     }
 }
