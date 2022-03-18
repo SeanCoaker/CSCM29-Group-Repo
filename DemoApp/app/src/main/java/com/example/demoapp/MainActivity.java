@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int maxChar = 16; // Screen size in number of characters
     private int maxRolls = 5; // Maximum number of rolls in auto roll
     private int accelerometerThreshold = 12; // Threshold value for accelerometer required to detect shake
+    private int numOfSidesActive = 4; // Used for limiting number of servos in auto roll
 
     Boolean isScreensOn = true; // If screens are currently on
     Boolean isAutoRollEngaged = false; // If auto roll has been activated
@@ -736,7 +737,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Thread.sleep(1000);
 
                 // Restart dice roll after all faces have been seen
-                if (currentSide == 4) {
+                if (currentSide == numOfSidesActive) {
                     currentSide = 1;
                 } else {
                     currentSide++;
@@ -791,7 +792,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("-----------Shake Detected----------");
             System.out.println("-----------------------------------");
 
-            if (shakeTimer == timeBetweenShake) {
+            if (isAutoRollEngaged) {
 
                 isShakeDetected = true;
 
