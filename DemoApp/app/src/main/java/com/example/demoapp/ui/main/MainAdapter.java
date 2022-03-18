@@ -94,20 +94,47 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
 
         if (selectedCard == card) {
             selectedCard = null;
+            setParentSelectedIndex();
         }
     }
 
     public void selectCardItem(CardView card) {
+
         if (selectedCard != null) {
-            selectedCard.findViewById(R.id.crossButton).setBackgroundTintList(
-                    selectedCard.getContext().getColorStateList(R.color.white));
-            selectedCard.setCardBackgroundColor(ContextCompat.getColor(
-                    selectedCard.getContext(), R.color.white));
+            resetSelectedCardDisplay();
         }
 
-        card.findViewById(R.id.crossButton).setBackgroundTintList(
-                card.getContext().getColorStateList(R.color.pistachio));
-        card.setCardBackgroundColor(ContextCompat.getColor(card.getContext(), R.color.pistachio));
-        selectedCard = card;
+        if (selectedCard == card) {
+            selectedCard = null;
+        } else {
+            card.findViewById(R.id.crossButton).setBackgroundTintList(
+                    card.getContext().getColorStateList(R.color.pistachio));
+            card.setCardBackgroundColor(ContextCompat.getColor(card.getContext(), R.color.pistachio));
+            selectedCard = card;
+        }
+
+        setParentSelectedIndex();
+    }
+
+    public void resetSelectedCardDisplay() {
+        selectedCard.findViewById(R.id.crossButton).setBackgroundTintList(
+                selectedCard.getContext().getColorStateList(R.color.white));
+        selectedCard.setCardBackgroundColor(ContextCompat.getColor(
+                selectedCard.getContext(), R.color.white));
+    }
+
+    public void setParentSelectedIndex() {
+        if (selectedCard == null) {
+            parentFragment.setCardSelected(false);
+            return;
+        }
+
+        String choice;
+        TextView selectedText = selectedCard.findViewById(R.id.choiceTextView);
+        choice = selectedText.getText().toString();
+
+        int selectedIndex = choices.indexOf(choice);
+        parentFragment.setSelectedIndex(selectedIndex);
+        parentFragment.setCardSelected(true);
     }
 }

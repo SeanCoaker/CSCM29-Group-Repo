@@ -4,11 +4,14 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/ic_baseline_clear_24.xml" value="0.114" />
+        <entry key="app/src/main/res/layout/check_layout.xml" value="0.309375" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.28703703703703703" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.309375" />
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.309375" />
         <entry key="app/src/main/res/layout/mainmenu.xml" value="0.309375" />
+        <entry key="app/src/main/res/layout/reset_layout.xml" value="0.22" />
         <entry key="app/src/main/res/layout/switch_layout.xml" value="0.309375" />
+        <entry key="app/src/main/res/menu/mainmenu.xml" value="0.309375" />
       </map>
     </option>
   </component>
