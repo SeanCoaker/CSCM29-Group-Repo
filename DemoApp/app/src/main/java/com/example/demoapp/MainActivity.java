@@ -11,7 +11,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.demoapp.ui.main.MainFragment;
 import com.phidget22.*;
@@ -29,6 +32,9 @@ import android.hardware.SensorManager;
  * Main Activity Class
  */
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
+
+    private Fragment childFragment;
+    private MainFragment mainFragment;
 
     /**
      * Phidget Devices
@@ -103,8 +109,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         init(); // Initialise the dice
 
         if (savedInstanceState == null) {
+            childFragment = MainFragment.newInstance(this);
+            mainFragment = (MainFragment) childFragment;
+
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance(this))
+                    .replace(R.id.container, childFragment)
                     .commitNow();
         }
 
@@ -312,10 +321,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.mainmenu, menu);
-        MenuItem item = menu.findItem(R.id.autoRollSwitchMenu);
-        item.setActionView(R.layout.switch_layout);
+        MenuItem autoRollItem = menu.findItem(R.id.autoRollSwitchMenu);
+        autoRollItem.setActionView(R.layout.switch_layout);
+        MenuItem resetItem = menu.findItem(R.id.btnResetMenu);
+        resetItem.setActionView(R.layout.reset_layout);
+        MenuItem checkItem = menu.findItem(R.id.btnCheckMenu);
+        checkItem.setActionView(R.layout.check_layout);
 
-        SwitchCompat autoRollSwitch = item.getActionView().findViewById(R.id.autoRollSwitch);
+        SwitchCompat autoRollSwitch = autoRollItem.getActionView().findViewById(R.id.autoRollSwitch);
+        AppCompatImageButton resetButton = resetItem.getActionView().findViewById(R.id.btnReset);
+        AppCompatImageButton checkButton = checkItem.getActionView().findViewById(R.id.btnCheck);
+
+        checkButton.setOnClickListener((button) -> {
+            if (!mainFragment.isCardSelected()) return;
+            System.out.println("CHECK ANSWER: " + choices.get(mainFragment.getSelectedIndex()));
+        });
+
+        resetButton.setOnClickListener((button) -> {
+            System.out.println("RESET");
+            mainFragment.clearRecycler();
+        });
 
         autoRollSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {

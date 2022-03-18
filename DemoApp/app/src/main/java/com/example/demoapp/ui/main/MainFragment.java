@@ -28,9 +28,11 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private final MainActivity parent;
     private Button addButton;
     private TextInputLayout addChoiceTextLayout;
-    private ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
-    private ArrayList<String> choices = choicesSingleton.getChoices();
+    private final ChoicesSingleton choicesSingleton = ChoicesSingleton.getInstance();
+    private final ArrayList<String> choices = choicesSingleton.getChoices();
     private RecyclerView.Adapter<MainAdapter.ViewHolder> adapter;
+    private int selectedIndex;
+    private boolean isCardSelected = false;
 
     public MainFragment(MainActivity parent) {
         this.parent = parent;
@@ -118,5 +120,29 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     public void callRandomChoice() {
         parent.setRandomChoice();
+    }
+
+    public void clearRecycler() {
+        int len = choices.size();
+        choices.clear();
+        adapter.notifyItemRangeRemoved(0, len);
+        updateOperatingMode(MainActivity.OperatingMode.INACTIVE);
+        setCardSelected(false);
+    }
+
+    public void setSelectedIndex(int index) {
+        this.selectedIndex = index;
+    }
+
+    public int getSelectedIndex() {
+        return this.selectedIndex;
+    }
+
+    public boolean isCardSelected() {
+        return this.isCardSelected;
+    }
+
+    public void setCardSelected(boolean cardSelected) {
+        this.isCardSelected = cardSelected;
     }
 }
