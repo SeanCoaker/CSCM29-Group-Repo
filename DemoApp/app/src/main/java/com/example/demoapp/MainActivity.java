@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     RCServo rcServoSide2;
     RCServo rcServoSide3;
     RCServo rcServoSide4;
-    RCServo rcServoSide5;
-    RCServo rcServoSide6;
+    //RCServo rcServoSide5;
+    //RCServo rcServoSide6;
     RCServo servos[];
 
     LCD lcdSide1;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int error = 30; // Maximum angle error in angle calculation
     private int maxChar = 16; // Screen size in number of characters
     private int maxRolls = 5; // Maximum number of rolls in auto roll
-    private int accelerometerThreshold = 12; // Threshold value for accelerometer required to detect shake
+    private int accelerometerThreshold = 15; // Threshold value for accelerometer required to detect shake
     private int numOfSidesActive = 4; // Used for limiting number of servos in auto roll
 
     Boolean isScreensOn = true; // If screens are currently on
@@ -94,9 +94,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     SensorManager mSensorManager; // Android sensor manager
     Sensor mSensor; // Android accelerometer sensor
 
-    Boolean isShakeDetected = false;
-    int timeBetweenShake = 3;
-    int shakeTimer = 0;
+    long autoRollCoolDown;
+    long coolDownTime = 60000;
 
     /**
      * On Create
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // Enable server discovery to list remote Phidgets
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
-            Net.addServer("", "172.21.144.1", 5661, "", 0);
+            Net.addServer("", "172.26.32.1", 5661, "", 0);
 
             /**
              * Instantiate Phidgets
@@ -141,21 +140,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rcServoSide2 = new RCServo();
             rcServoSide3 = new RCServo();
             rcServoSide4 = new RCServo();
-            rcServoSide5 = new RCServo();
-            rcServoSide6 = new RCServo();
+            //rcServoSide5 = new RCServo();
+            //rcServoSide6 = new RCServo();
 
             rcServoSide1.setChannel(0);
             rcServoSide2.setChannel(1);
             rcServoSide3.setChannel(2);
             rcServoSide4.setChannel(3);
-            rcServoSide5.setChannel(4);
-            rcServoSide6.setChannel(5);
+            //rcServoSide5.setChannel(4);
+            //rcServoSide6.setChannel(5);
 
 
             // LCD Side 1 Setup
             lcdSide1 = new LCD();
             lcdSide1.setChannel(0);
-            lcdSide1.setDeviceSerialNumber(30683);
+            lcdSide1.setDeviceSerialNumber(331245);
             lcdSide1.open(5000);
             lcdSide1.setBacklight(0.5);
             lcdSide1.setContrast(0.5);
@@ -166,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             // LCD Side 2 Setup
             lcdSide2 = new LCD();
-            lcdSide2.setChannel(0);
-            lcdSide2.setDeviceSerialNumber(30679);
+            lcdSide2.setChannel(1);
+            lcdSide2.setDeviceSerialNumber(331245);
             lcdSide2.open(5000);
             lcdSide2.setBacklight(0.5);
             lcdSide2.setContrast(0.5);
@@ -178,18 +177,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // LCD Side 3 Setup
             lcdSide3 = new LCD();
             lcdSide3.setChannel(0);
-            lcdSide3.setDeviceSerialNumber(29773);
+            lcdSide3.setDeviceSerialNumber(329830);
             lcdSide3.open(5000);
             lcdSide3.setBacklight(0.5);
             lcdSide3.setContrast(0.5);
-            lcdSide1.setScreenSize(screenSize);
+            lcdSide3.setScreenSize(screenSize);
             lcdSide3.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-3",maxChar));
             lcdSide3.flush();
 
             // LCD Side 4 Setup
             lcdSide4 = new LCD();
-            lcdSide4.setChannel(0);
-            lcdSide4.setDeviceSerialNumber(12345);
+            lcdSide4.setChannel(1);
+            lcdSide4.setDeviceSerialNumber(329830);
             lcdSide4.open(5000);
             lcdSide4.setBacklight(0.5);
             lcdSide4.setContrast(0.5);
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // LCD Side 5 Setup
             lcdSide5 = new LCD();
             lcdSide5.setChannel(0);
-            lcdSide5.setDeviceSerialNumber(12345);
+            lcdSide5.setDeviceSerialNumber(329998);
             lcdSide5.open(5000);
             lcdSide5.setBacklight(0.5);
             lcdSide5.setContrast(0.5);
@@ -211,8 +210,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             // LCD Side 6 Setup
             lcdSide6 = new LCD();
-            lcdSide6.setChannel(0);
-            lcdSide6.setDeviceSerialNumber(12345);
+            lcdSide6.setChannel(1);
+            lcdSide6.setDeviceSerialNumber(329998);
             lcdSide6.open(5000);
             lcdSide6.setBacklight(0.5);
             lcdSide6.setContrast(0.5);
@@ -265,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             break;
                         case SIXSIDENORMAL:
                             try {
+                                setRandomChoice();
                                 lastOperatingMode = OperatingMode.SIXSIDENORMAL;
                                 turnOnScreens();
                                 updateDiceSixNormal();
@@ -298,8 +298,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rcServoSide2.open(5000);
             rcServoSide3.open(5000);
             rcServoSide4.open(5000);
-            rcServoSide5.open(5000);
-            rcServoSide6.open(5000);
+            //rcServoSide5.open(5000);
+            //rcServoSide6.open(5000);
 
 
             servos = new RCServo[6];
@@ -307,8 +307,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             servos[1] = rcServoSide2;
             servos[2] = rcServoSide3;
             servos[3] = rcServoSide4;
-            servos[4] = rcServoSide5;
-            servos[5] = rcServoSide6;
+            //servos[4] = rcServoSide5;
+            //servos[5] = rcServoSide6;
 
             isScreensOn = true;
 
@@ -336,6 +336,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         checkButton.setOnClickListener((button) -> {
             if (!mainFragment.isCardSelected()) return;
             System.out.println("CHECK ANSWER: " + choices.get(mainFragment.getSelectedIndex()));
+            try {
+                checkAnswer(mainFragment.getSelectedIndex());
+            } catch (PhidgetException e) {
+                e.printStackTrace();
+            }
         });
 
         resetButton.setOnClickListener((button) -> {
@@ -717,19 +722,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void autoRoll() throws PhidgetException, InterruptedException {
 
-        if (servos == null || servos.length == 0) return;
+        isAutoRollEngaged = true;
 
         System.out.println("-----------------------------------");
         System.out.println("---------AutoRoll Activated--------");
         System.out.println("-----------------------------------");
         System.out.println("");
 
-        isAutoRollEngaged = true;
-        isShakeDetected = false;
-
-        while(!isShakeDetected){
-
-        }
 
         int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
 
@@ -781,8 +780,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         System.out.println("-----------------------------------");
         System.out.println("");
 
+        autoRollCoolDown = System.currentTimeMillis();
+
         isAutoRollEngaged = false;
-        isShakeDetected = false;
 
     }
 
@@ -817,16 +817,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("-----------Shake Detected----------");
             System.out.println("-----------------------------------");
 
-            if (isAutoRollEngaged) {
+            try {
+                if (!isAutoRollEngaged && (System.currentTimeMillis() - autoRollCoolDown) > coolDownTime) {
+                    autoRoll();
+                }
 
-                isShakeDetected = true;
-
-
-            } else {
-
-                isShakeDetected = false;
-
+            } catch (PhidgetException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
+        }
+
+    }
+
+    public void checkAnswer(int selectedChoiceIndex) throws PhidgetException {
+
+        if (choices.get(currentSideUp-1).equals(choices.get(selectedChoiceIndex))) {
+
+            diceSides.set(currentSideUp-1, "Correct");
+            updateDice();
+
+        } else {
+
+            diceSides.set(currentSideUp-1, "Incorrect");
+            updateDice();
 
         }
 
