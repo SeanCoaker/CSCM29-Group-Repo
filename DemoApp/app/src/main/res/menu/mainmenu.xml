@@ -13,10 +13,4 @@
         android:title=""
         android:actionLayout="@layout/reset_layout"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/autoRollSwitchMenu"
-        android:title=""
-        android:actionLayout="@layout/switch_layout"
-        app:showAsAction="ifRoom" />
 </menu>

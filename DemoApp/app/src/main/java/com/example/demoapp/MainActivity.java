@@ -322,14 +322,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.mainmenu, menu);
-        MenuItem autoRollItem = menu.findItem(R.id.autoRollSwitchMenu);
-        autoRollItem.setActionView(R.layout.switch_layout);
         MenuItem resetItem = menu.findItem(R.id.btnResetMenu);
         resetItem.setActionView(R.layout.reset_layout);
         MenuItem checkItem = menu.findItem(R.id.btnCheckMenu);
         checkItem.setActionView(R.layout.check_layout);
 
-        SwitchCompat autoRollSwitch = autoRollItem.getActionView().findViewById(R.id.autoRollSwitch);
         AppCompatImageButton resetButton = resetItem.getActionView().findViewById(R.id.btnReset);
         AppCompatImageButton checkButton = checkItem.getActionView().findViewById(R.id.btnCheck);
 
@@ -348,26 +345,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mainFragment.clearRecycler();
         });
 
-        autoRollSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-
-                System.out.println("-----------------------------------");
-                System.out.println("------------Switch ON--------------");
-                System.out.println("-----------------------------------");
-
-                try {
-                    autoRoll();
-                } catch (PhidgetException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-
-                System.out.println("-----------------------------------");
-                System.out.println("-----------Switch OFF--------------");
-                System.out.println("-----------------------------------");
-            }
-        });
         return true;
     }
 
