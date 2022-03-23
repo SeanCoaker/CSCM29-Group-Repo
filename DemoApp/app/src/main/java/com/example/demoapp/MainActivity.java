@@ -43,9 +43,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     RCServo rcServoSide1;
     RCServo rcServoSide2;
     RCServo rcServoSide3;
-    RCServo rcServoSide4;
-    //RCServo rcServoSide5;
-    //RCServo rcServoSide6;
     RCServo servos[];
 
     LCD lcdSide1;
@@ -70,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int maxChar = 16; // Screen size in number of characters
     private int maxRolls = 5; // Maximum number of rolls in auto roll
     private int accelerometerThreshold = 15; // Threshold value for accelerometer required to detect shake
-    private int numOfSidesActive = 4; // Used for limiting number of servos in auto roll
+    private int numOfSidesActive = 3; // Used for limiting number of servos in auto roll
 
     Boolean isScreensOn = true; // If screens are currently on
     Boolean isAutoRollEngaged = false; // If auto roll has been activated
@@ -95,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Sensor mSensor; // Android accelerometer sensor
 
     long autoRollCoolDown;
-    long coolDownTime = 60000;
+    long coolDownTime = 10000;
 
     /**
      * On Create
@@ -139,56 +136,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rcServoSide1 = new RCServo();
             rcServoSide2 = new RCServo();
             rcServoSide3 = new RCServo();
-            rcServoSide4 = new RCServo();
-            //rcServoSide5 = new RCServo();
-            //rcServoSide6 = new RCServo();
 
-            rcServoSide1.setChannel(0);
-            rcServoSide2.setChannel(1);
-            rcServoSide3.setChannel(2);
-            rcServoSide4.setChannel(3);
-            //rcServoSide5.setChannel(4);
-            //rcServoSide6.setChannel(5);
+            rcServoSide1.setChannel(1);
+            rcServoSide2.setChannel(2);
+            rcServoSide3.setChannel(3);
 
-
-            // LCD Side 1 Setup
-            lcdSide1 = new LCD();
-            lcdSide1.setChannel(0);
-            lcdSide1.setDeviceSerialNumber(331245);
-            lcdSide1.open(5000);
-            lcdSide1.setBacklight(0.5);
-            lcdSide1.setContrast(0.5);
-            lcdSide1.setScreenSize(screenSize);
-            lcdSide1.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-1",maxChar));
-            lcdSide1.flush();
-
-
-            // LCD Side 2 Setup
-            lcdSide2 = new LCD();
-            lcdSide2.setChannel(1);
-            lcdSide2.setDeviceSerialNumber(331245);
-            lcdSide2.open(5000);
-            lcdSide2.setBacklight(0.5);
-            lcdSide2.setContrast(0.5);
-            lcdSide2.setScreenSize(screenSize);
-            lcdSide2.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-2",maxChar));
-            lcdSide2.flush();
 
             // LCD Side 3 Setup
             lcdSide3 = new LCD();
             lcdSide3.setChannel(0);
-            lcdSide3.setDeviceSerialNumber(329830);
+            lcdSide3.setDeviceSerialNumber(331245);
             lcdSide3.open(5000);
             lcdSide3.setBacklight(0.5);
             lcdSide3.setContrast(0.5);
             lcdSide3.setScreenSize(screenSize);
-            lcdSide3.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-3",maxChar));
+            lcdSide3.writeText(LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-3",maxChar));
             lcdSide3.flush();
+
 
             // LCD Side 4 Setup
             lcdSide4 = new LCD();
             lcdSide4.setChannel(1);
-            lcdSide4.setDeviceSerialNumber(329830);
+            lcdSide4.setDeviceSerialNumber(331245);
             lcdSide4.open(5000);
             lcdSide4.setBacklight(0.5);
             lcdSide4.setContrast(0.5);
@@ -196,16 +165,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             lcdSide4.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-4",maxChar));
             lcdSide4.flush();
 
+            // LCD Side 2 Setup
+            lcdSide2 = new LCD();
+            lcdSide2.setChannel(0);
+            lcdSide2.setDeviceSerialNumber(329830);
+            lcdSide2.open(5000);
+            lcdSide2.setBacklight(0.5);
+            lcdSide2.setContrast(0.5);
+            lcdSide2.setScreenSize(screenSize);
+            lcdSide2.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-2",maxChar));
+            lcdSide2.flush();
+
             // LCD Side 5 Setup
             lcdSide5 = new LCD();
-            lcdSide5.setChannel(0);
-            lcdSide5.setDeviceSerialNumber(329998);
+            lcdSide5.setChannel(1);
+            lcdSide5.setDeviceSerialNumber(329830);
             lcdSide5.open(5000);
             lcdSide5.setBacklight(0.5);
             lcdSide5.setContrast(0.5);
             lcdSide5.setScreenSize(screenSize);
             lcdSide5.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-5",maxChar));
             lcdSide5.flush();
+
+            // LCD Side 1 Setup
+            lcdSide1 = new LCD();
+            lcdSide1.setChannel(0);
+            lcdSide1.setDeviceSerialNumber(329998);
+            lcdSide1.open(5000);
+            lcdSide1.setBacklight(0.5);
+            lcdSide1.setContrast(0.5);
+            lcdSide1.setScreenSize(screenSize);
+            lcdSide1.writeText(com.phidget22.LCDFont.DIMENSIONS_5X8, 0, 0, addPadding("SIDE-1",maxChar));
+            lcdSide1.flush();
 
 
             // LCD Side 6 Setup
@@ -297,18 +288,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rcServoSide1.open(5000);
             rcServoSide2.open(5000);
             rcServoSide3.open(5000);
-            rcServoSide4.open(5000);
-            //rcServoSide5.open(5000);
-            //rcServoSide6.open(5000);
-
 
             servos = new RCServo[6];
             servos[0] = rcServoSide1;
             servos[1] = rcServoSide2;
             servos[2] = rcServoSide3;
-            servos[3] = rcServoSide4;
-            //servos[4] = rcServoSide5;
-            //servos[5] = rcServoSide6;
 
             isScreensOn = true;
 
@@ -372,7 +356,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rcServoSide1.close();
             rcServoSide2.close();
             rcServoSide3.close();
-            rcServoSide4.close();
 
 
             Log.d("onDestroy: ", "Closed channels.");
@@ -725,15 +708,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 System.out.println("-----------------------------------");
                 System.out.println("");
 
-                servos[currentSide-1].setTargetPosition(0);
-                servos[currentSide-1].setEngaged(true);
-                Thread.sleep(1000);
-
-                servos[currentSide-1].setTargetPosition(180);
+                servos[currentSide-1].setTargetPosition(90);
                 servos[currentSide-1].setEngaged(true);
                 Thread.sleep(1000);
 
                 servos[currentSide-1].setTargetPosition(0);
+                servos[currentSide-1].setEngaged(true);
+                Thread.sleep(1000);
+
+                servos[currentSide-1].setTargetPosition(90);
                 servos[currentSide-1].setEngaged(true);
                 Thread.sleep(1000);
 
