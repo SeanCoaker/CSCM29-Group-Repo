@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     LCD lcdSide5;
     LCD lcdSide6;
 
-    Spatial spatial0; // Accelerometer
+    Spatial spatial0; // Accelerometer inside dice
+    Spatial spatial1; // External Accelerometer
 
     /**
      * App Global Variables
@@ -93,6 +94,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     long autoRollCoolDown;
     long coolDownTime = 10000;
+    int notificationLength = 3000;
+
+    Boolean isRolled = false;
+    int externalAccThreshold = 5;
+
 
     /**
      * On Create
@@ -130,6 +136,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             // Spatial Phidget Setup
             spatial0 = new Spatial();
+            spatial0.setDeviceSerialNumber(619527);
+            spatial1 = new Spatial();
+            spatial1.setDeviceSerialNumber(620776);
 
 
             // Servos Setup
@@ -216,17 +225,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             spatial0.addSpatialDataListener(new SpatialSpatialDataListener() {
                 public void onSpatialData(SpatialSpatialDataEvent e) {
 
-                    //System.out.println("Acceleration: \t"+ e.getAcceleration()[0]+ "  |  "+ e.getAcceleration()[1]+ "  |  "+ e.getAcceleration()[2]);
-                    //System.out.println("AngularRate: \t"+ e.getAngularRate()[0]+ "  |  "+ e.getAngularRate()[1]+ "  |  "+ e.getAngularRate()[2]);
-                    //System.out.println("MagneticField: \t"+ e.getMagneticField()[0]+ "  |  "+ e.getMagneticField()[1]+ "  |  "+ e.getMagneticField()[2]);
-                    //System.out.println("Timestamp: " + e.getTimestamp());
-                    //System.out.println("----------");
-
                     double xAngle = calculateAngleX(e.getAcceleration()[0],e.getAcceleration()[1],e.getAcceleration()[2]);
                     double yAngle = calculateAngleY(e.getAcceleration()[0],e.getAcceleration()[1],e.getAcceleration()[2]);
-
-                    //System.out.println("X Angle:" + xAngle);
-                    //System.out.println("Y Angle:" + yAngle);
 
                     updateSideUp(xAngle,yAngle);
 
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         System.out.println("-----------------------------------");
                         System.out.println("Operating Mode: " + operatingMode);
                         System.out.println("-----------------------------------");
-                        if (!choices.isEmpty()){
+                        if (choices.size() > randomChoiceIndex+1){
 
                             System.out.println("Current Random Choice: " + choices.get(randomChoiceIndex));
 
@@ -281,8 +281,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             });
 
+            spatial1.addSpatialDataListener(new SpatialSpatialDataListener() {
+                public void onSpatialData(SpatialSpatialDataEvent e) {
+
+                    if ((Math.abs(e.getAcceleration()[0]) > externalAccThreshold) || (Math.abs(e.getAcceleration()[1]) > externalAccThreshold) || (Math.abs(e.getAcceleration()[2]) > externalAccThreshold)) {
+
+                        System.out.println("-----------------------------------");
+                        System.out.println("-----------Roll Detected-----------");
+                        System.out.println("-----------------------------------");
+
+                        isRolled = true;
+
+                    }
+
+                }
+            });
+
 
             spatial0.open(5000);
+            spatial1.open(5000);
 
 
             rcServoSide1.open(5000);
@@ -326,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         resetButton.setOnClickListener((button) -> {
             System.out.println("RESET");
+            isRolled = false;
             mainFragment.clearRecycler();
         });
 
@@ -591,22 +609,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         setDiceSides(fillingIndexes);
 
-        setDiceSide(randomChoiceIndex,currentSideUp);
+        if (isRolled) {
 
-        updateDice();
+            setDiceSide(randomChoiceIndex,currentSideUp);
 
-        if (lastSideUp != currentSideUp) {
-
-            System.out.println("-----------------------------------");
-            System.out.println(choices.get(randomChoiceIndex));
-            System.out.println("-----------------------------------");
-            System.out.println("");
+            lastSideUp = currentSideUp;
 
             updateDice();
 
-        }
+        } else {
 
-        lastSideUp = currentSideUp;
+            updateDice();
+            lastSideUp = currentSideUp;
+        }
 
     }
 
@@ -794,15 +809,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void checkAnswer(int selectedChoiceIndex) throws PhidgetException {
 
+        ArrayList<String> currentDiceSides = (ArrayList<String>) diceSides.clone();
+        System.out.println(currentDiceSides);
+
         if (choices.get(currentSideUp-1).equals(choices.get(selectedChoiceIndex))) {
 
             diceSides.set(currentSideUp-1, "Correct");
+            updateDice();
+            try {
+                Thread.sleep(notificationLength);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            diceSides = (ArrayList<String>) currentDiceSides.clone();
             updateDice();
 
         } else {
 
             diceSides.set(currentSideUp-1, "Incorrect");
             updateDice();
+            try {
+                Thread.sleep(notificationLength);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            diceSides = (ArrayList<String>) currentDiceSides.clone();
+            updateDice();
+
 
         }
 
