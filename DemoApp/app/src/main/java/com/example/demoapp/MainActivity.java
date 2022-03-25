@@ -140,7 +140,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             speaker.setHubPort(2);
             speaker.open(5000);
 
-            playSound();
+            playSoundTurnOn();
+
 
             // Spatial Phidget Setup
             spatial0 = new Spatial();
@@ -684,7 +685,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             isScreensOn = false;
 
-            playSound();
+            playSoundTurnOff();
 
         }
 
@@ -703,13 +704,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             isScreensOn = true;
 
-            playSound();
+            playSoundTurnOn();
         }
 
     }
 
 
     public void autoRoll() throws PhidgetException, InterruptedException {
+
+        playSoundAutoroll();
 
         isAutoRollEngaged = true;
 
@@ -859,15 +862,78 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.operatingMode = op;
     }
 
-    // Sloping up sound
-    public void playSound() throws PhidgetException, InterruptedException {
 
-        for (int i=400; i <= 500; i++) {
+    public void playSoundTurnOn() throws PhidgetException, InterruptedException {
+
+        for (int i=400; i <= 475; i++) {
 
             speaker.setDutyCycle(i*0.001);
             Thread.sleep(20);
 
         }
+        speaker.setDutyCycle(0);
     }
+
+    public void playSoundIncorrect() throws PhidgetException, InterruptedException {
+
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+    }
+
+    public void playSoundCorrect() throws PhidgetException, InterruptedException {
+
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0.234);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+    }
+
+    public void playSoundTurnOff() throws PhidgetException, InterruptedException {
+
+        speaker.setDutyCycle(0.234);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0.234);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+
+    }
+
+    public void playSoundAutoroll() throws PhidgetException, InterruptedException {
+
+        speaker.setDutyCycle(0.234);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        speaker.setDutyCycle(0.234);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0.235);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+        speaker.setDutyCycle(0.234);
+        Thread.sleep(250);
+        speaker.setDutyCycle(0);
+
+
+    }
+
 
 }
