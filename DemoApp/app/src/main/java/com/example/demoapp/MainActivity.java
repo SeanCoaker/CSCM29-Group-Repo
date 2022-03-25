@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Spatial spatial0; // Accelerometer inside dice
     Spatial spatial1; // External Accelerometer
 
+    DigitalOutput speaker;
+
     /**
      * App Global Variables
      */
@@ -133,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             /**
              * Instantiate Phidgets
              */
+
+            speaker = new DigitalOutput();
+            speaker.setDeviceSerialNumber(619527);
+            speaker.setChannel(2);
 
             // Spatial Phidget Setup
             spatial0 = new Spatial();
@@ -297,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             });
 
+            speaker.open(5000);
 
             spatial0.open(5000);
             spatial1.open(5000);
@@ -845,4 +852,51 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void setOperatingMode(OperatingMode op) {
         this.operatingMode = op;
     }
+
+    public void playSoundStartup() throws PhidgetException, InterruptedException {
+
+        speaker.setFrequency(0);
+        speaker.setFrequency(1300);
+        Thread.sleep(500);
+        speaker.setFrequency(1400);
+        Thread.sleep(500);
+        speaker.setFrequency(1500);
+        Thread.sleep(500);
+        speaker.setFrequency(0);
+
+    }
+
+    public void playSoundShutdown() throws PhidgetException, InterruptedException {
+
+        speaker.setFrequency(0);
+        speaker.setFrequency(1500);
+        Thread.sleep(500);
+        speaker.setFrequency(1400);
+        Thread.sleep(500);
+        speaker.setFrequency(1300);
+        Thread.sleep(500);
+        speaker.setFrequency(0);
+
+    }
+
+    public void playSoundCorrect() throws PhidgetException, InterruptedException {
+
+        speaker.setFrequency(0);
+        speaker.setFrequency(1300);
+        Thread.sleep(500);
+        speaker.setFrequency(1500);
+        Thread.sleep(1000);
+        speaker.setFrequency(0);
+
+    }
+
+    public void playSoundIncorrect() throws PhidgetException, InterruptedException {
+
+        speaker.setFrequency(0);
+        speaker.setFrequency(100);
+        Thread.sleep(2000);
+        speaker.setFrequency(0);
+
+    }
+
 }
