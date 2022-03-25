@@ -11,9 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.demoapp.ui.main.MainFragment;
@@ -43,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     RCServo rcServoSide1;
     RCServo rcServoSide2;
     RCServo rcServoSide3;
-    RCServo servos[];
+    RCServo[] servos;
 
     LCD lcdSide1;
     LCD lcdSide2;
@@ -130,15 +128,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // Enable server discovery to list remote Phidgets
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
-            Net.addServer("", "172.26.32.1", 5661, "", 0);
+            Net.addServer("", "192.168.56.1", 5661, "", 0);
 
             /**
              * Instantiate Phidgets
              */
 
             speaker = new DigitalOutput();
+            speaker.setIsHubPortDevice(true);
             speaker.setDeviceSerialNumber(619527);
-            speaker.setChannel(2);
+            speaker.setHubPort(2);
+            speaker.open(5000);
+
+            playSound();
 
             // Spatial Phidget Setup
             spatial0 = new Spatial();
@@ -255,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         case INACTIVE:
                             try {
                                 turnOffScreens();
-                            } catch (PhidgetException phidgetException) {
+                            } catch (PhidgetException | InterruptedException phidgetException) {
                                 phidgetException.printStackTrace();
                             }
                             break;
@@ -265,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 lastOperatingMode = OperatingMode.SIXSIDENORMAL;
                                 turnOnScreens();
                                 updateDiceSixNormal();
-                            } catch (PhidgetException phidgetException) {
+                            } catch (PhidgetException | InterruptedException phidgetException) {
                                 phidgetException.printStackTrace();
                             }
                             break;
@@ -274,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 lastOperatingMode = OperatingMode.SIXSIDEEXTENDED;
                                 turnOnScreens();
                                 updateDiceSixExtended();
-                            } catch (PhidgetException phidgetException) {
+                            } catch (PhidgetException | InterruptedException phidgetException) {
                                 phidgetException.printStackTrace();
                             }
 
@@ -303,8 +305,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             });
 
-            speaker.open(5000);
-
             spatial0.open(5000);
             spatial1.open(5000);
 
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             isScreensOn = true;
 
-        } catch (PhidgetException pe) {
+        } catch (PhidgetException | InterruptedException pe) {
             pe.printStackTrace();
         }
     }
@@ -370,6 +370,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         try {
 
             spatial0.close();
+            spatial1.close();
+
+            speaker.close();
 
             lcdSide1.close();
             lcdSide2.close();
@@ -667,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    public void turnOffScreens() throws PhidgetException {
+    public void turnOffScreens() throws PhidgetException, InterruptedException {
 
         if (isScreensOn == true) {
 
@@ -681,11 +684,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             isScreensOn = false;
 
+            playSound();
+
         }
 
     }
 
-    public void turnOnScreens() throws PhidgetException {
+    public void turnOnScreens() throws PhidgetException, InterruptedException {
 
         if (isScreensOn == false) {
 
@@ -697,6 +702,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             lcdSide6.setBacklight(0.5);
 
             isScreensOn = true;
+
+            playSound();
         }
 
     }
@@ -848,55 +855,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-
     public void setOperatingMode(OperatingMode op) {
         this.operatingMode = op;
     }
 
-    public void playSoundStartup() throws PhidgetException, InterruptedException {
+    // Sloping up sound
+    public void playSound() throws PhidgetException, InterruptedException {
 
-        speaker.setFrequency(0);
-        speaker.setFrequency(1300);
-        Thread.sleep(500);
-        speaker.setFrequency(1400);
-        Thread.sleep(500);
-        speaker.setFrequency(1500);
-        Thread.sleep(500);
-        speaker.setFrequency(0);
+        for (int i=400; i <= 500; i++) {
 
-    }
+            speaker.setDutyCycle(i*0.001);
+            Thread.sleep(20);
 
-    public void playSoundShutdown() throws PhidgetException, InterruptedException {
-
-        speaker.setFrequency(0);
-        speaker.setFrequency(1500);
-        Thread.sleep(500);
-        speaker.setFrequency(1400);
-        Thread.sleep(500);
-        speaker.setFrequency(1300);
-        Thread.sleep(500);
-        speaker.setFrequency(0);
-
-    }
-
-    public void playSoundCorrect() throws PhidgetException, InterruptedException {
-
-        speaker.setFrequency(0);
-        speaker.setFrequency(1300);
-        Thread.sleep(500);
-        speaker.setFrequency(1500);
-        Thread.sleep(1000);
-        speaker.setFrequency(0);
-
-    }
-
-    public void playSoundIncorrect() throws PhidgetException, InterruptedException {
-
-        speaker.setFrequency(0);
-        speaker.setFrequency(100);
-        Thread.sleep(2000);
-        speaker.setFrequency(0);
-
+        }
     }
 
 }
