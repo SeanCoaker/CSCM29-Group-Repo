@@ -705,7 +705,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         System.out.println("");
 
 
-        int sideToStopOn = 1 + (int)(Math.random() * ((maxRolls -1) + 1));
+        int sideToStopOn = 2 + (int)(Math.random() * ((maxRolls -2) + 1));
 
         System.out.println("-----------------------------------");
         System.out.println("Number of Rolls: " + sideToStopOn);

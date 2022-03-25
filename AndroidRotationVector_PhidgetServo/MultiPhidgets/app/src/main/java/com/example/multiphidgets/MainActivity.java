@@ -51,45 +51,43 @@ public class MainActivity extends Activity implements SensorEventListener {
         mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         try {
-            //Allow direct USB connection of Phidgets
-            if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST))
-                com.phidget22.usb.Manager.Initialize(this);
 
             //Enable server discovery to list remote Phidgets
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
 
 //            Net.addServer("", "137.44.181.66", 5661, "", 0);
-            Net.addServer("", "192.168.1.43", 5661, "", 0);
+            Net.addServer("", "172.26.32.1", 5661, "", 0);
 
             //Create your Phidget channels
-            voltageRatioInput0 = new VoltageRatioInput();
+//            voltageRatioInput0 = new VoltageRatioInput();
             rcServo0 = new RCServo();
-            digitalOutput0 = new DigitalOutput();
+//            digitalOutput0 = new DigitalOutput();
 
             //Set addressing parameters to specify which channel to open (if any)
-            voltageRatioInput0.setIsHubPortDevice(true);
-            voltageRatioInput0.setDeviceSerialNumber(626673);
+//            voltageRatioInput0.setIsHubPortDevice(true);
+//            voltageRatioInput0.setDeviceSerialNumber(626673);
 //            voltageRatioInput0.setChannel(0);
-            voltageRatioInput0.setHubPort(0);
+//            voltageRatioInput0.setHubPort(0);
             //Set the sensor type to match the analog sensor you are using after opening the Phidget
 //            voltageRatioInput0.setSensorType(VoltageRatioSensorType.PN_1128);
-            rcServo0.setDeviceSerialNumber(14379);
-            digitalOutput0.setIsHubPortDevice(true);
-            digitalOutput0.setDeviceSerialNumber(626673);
-            digitalOutput0.setHubPort(5);
+            rcServo0.setDeviceSerialNumber(20986);
+            rcServo0.setChannel(1);
+//            digitalOutput0.setIsHubPortDevice(true);
+//            digitalOutput0.setDeviceSerialNumber(626673);
+//            digitalOutput0.setHubPort(5);
 //            digitalOutput0.setChannel(0);
 //            digitalOutput0.setIsRemote(true);
 
-            voltageRatioInput0.addAttachListener(onCh_Attach);
-            voltageRatioInput0.addDetachListener(onCh_Detach);
+//            voltageRatioInput0.addAttachListener(onCh_Attach);
+//            voltageRatioInput0.addDetachListener(onCh_Detach);
 //            voltageRatioInput0.addVoltageRatioChangeListener(onCh_VoltageRatioChange);
-            voltageRatioInput0.addVoltageRatioChangeListener(new VoltageRatioInputVoltageRatioChangeListener() {
-                public void onVoltageRatioChange(VoltageRatioInputVoltageRatioChangeEvent voltageRatioChangeEvent) {
-                    VoltageRatioInputVoltageRatioChangeEventHandler handler = new VoltageRatioInputVoltageRatioChangeEventHandler(voltageRatioInput0, voltageRatioChangeEvent);
-                    runOnUiThread(handler);
-                }
-            });
+//            voltageRatioInput0.addVoltageRatioChangeListener(new VoltageRatioInputVoltageRatioChangeListener() {
+//                public void onVoltageRatioChange(VoltageRatioInputVoltageRatioChangeEvent voltageRatioChangeEvent) {
+//                    VoltageRatioInputVoltageRatioChangeEventHandler handler = new VoltageRatioInputVoltageRatioChangeEventHandler(voltageRatioInput0, voltageRatioChangeEvent);
+//                    runOnUiThread(handler);
+//                }
+//            });
 
             rcServo0.addAttachListener(onCh_Attach);
             rcServo0.addDetachListener(onCh_Detach);
@@ -101,12 +99,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
             });*/
 
-            digitalOutput0.addAttachListener(onCh_Attach);
-            digitalOutput0.addDetachListener(onCh_Detach);
+            //digitalOutput0.addAttachListener(onCh_Attach);
+            //digitalOutput0.addDetachListener(onCh_Detach);
 
-            voltageRatioInput0.open(5000);
+            //voltageRatioInput0.open(5000);
             rcServo0.open(5000);
-            digitalOutput0.open(5000);
+            //digitalOutput0.open(5000);
         } catch (PhidgetException pe) {
             pe.printStackTrace();
         }
@@ -136,11 +134,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         public void run() {
             vTextView.setText("V_in = " + String.valueOf(String.format("%.2f",voltageRatioChangeEvent.getVoltageRatio())) + " V/V");
-            try {
-                digitalOutput0.setDutyCycle(voltageRatioChangeEvent.getVoltageRatio());
-            } catch (PhidgetException phidgetException) {
-                phidgetException.printStackTrace();
-            }
+//            try {
+//                //digitalOutput0.setDutyCycle(voltageRatioChangeEvent.getVoltageRatio());
+//            } catch (PhidgetException phidgetException) {
+//                phidgetException.printStackTrace();
+//            }
         }
     }
 
@@ -239,14 +237,20 @@ public class MainActivity extends Activity implements SensorEventListener {
                 angle += xGyro * dT;
                 filteredAngle = (0.98f * (filteredAngle + (xGyro * dT))) + (0.02f * pitch);
                 float normalisedAngle = (filteredAngle - (-90)) * (180) / (90 - (-90)) + 0;
-
-//                try {
-//                    rcServo0.setTargetPosition(filteredAngle);
-//                    rcServo0.setEngaged(true);
+                while (true) {
+                    try {
+                        if (rcServo0.getAttached()) break;
+                    } catch (PhidgetException phidgetException) {
+                        phidgetException.printStackTrace();
+                    }
+                }
+                try {
+                    rcServo0.setTargetPosition(normalisedAngle);
+                    rcServo0.setEngaged(true);
                     pTextView.setText("Servo position = " + normalisedAngle + " Degrees");
-//                } catch (PhidgetException phidgetException) {
-//                    phidgetException.printStackTrace();
-//                }
+                   } catch (PhidgetException phidgetException) {
+                    phidgetException.printStackTrace();
+                }
             }
 
             timestamp = event.timestamp;
