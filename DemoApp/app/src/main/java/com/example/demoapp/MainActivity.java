@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // Enable server discovery to list remote Phidgets
             this.getSystemService(Context.NSD_SERVICE);
             Net.enableServerDiscovery(ServerType.DEVICE_REMOTE);
-            Net.addServer("", "192.168.56.1", 5661, "", 0);
+            Net.addServer("", "172.25.240.1", 5661, "", 0);
 
             /**
              * Instantiate Phidgets
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("CHECK ANSWER: " + choices.get(mainFragment.getSelectedIndex()));
             try {
                 checkAnswer(mainFragment.getSelectedIndex());
-            } catch (PhidgetException e) {
+            } catch (PhidgetException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
@@ -824,7 +824,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    public void checkAnswer(int selectedChoiceIndex) throws PhidgetException {
+    public void checkAnswer(int selectedChoiceIndex) throws PhidgetException, InterruptedException {
 
         ArrayList<String> currentDiceSides = (ArrayList<String>) diceSides.clone();
         System.out.println(currentDiceSides);
@@ -833,6 +833,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             diceSides.set(currentSideUp-1, "Correct");
             updateDice();
+            playSoundCorrect();
             try {
                 Thread.sleep(notificationLength);
             } catch (InterruptedException e) {
@@ -845,6 +846,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             diceSides.set(currentSideUp-1, "Incorrect");
             updateDice();
+            playSoundIncorrect();
             try {
                 Thread.sleep(notificationLength);
             } catch (InterruptedException e) {
