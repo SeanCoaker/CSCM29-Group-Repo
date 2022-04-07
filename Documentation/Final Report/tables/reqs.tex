@@ -1,0 +1,98 @@
+\small
+\begin{xltabular}[H]{\textwidth}{c | X | X}
+    \caption[Requirements and Specifications]{A table of requirements with relative specifications that need to be met to reach the requirement.}\\
+
+    \toprule
+
+    Code & User Requirement & Specification\\
+
+    \midrule
+    \endfirsthead
+
+    \toprule
+
+    Code & User Requirement & Specification\\
+
+    \midrule
+    \endhead
+
+    \hline
+    \multicolumn{3}{|r|}{{Continued on next page}}\\
+    \hline
+    \endfoot
+
+    \bottomrule
+    \endlastfoot
+
+    REQ1
+
+    &
+
+    The Every Dice should allow the user to answer questions in an attempt to reduce anxiety in classrooms that practise active learning.
+
+    &
+
+    The Android application should allow a user to list options for answers and select the correct answer. This has been implemented with a recycler view that allows the user to add and remove items to and from the list.\\
+
+    \cmidrule{3-3}
+
+    &
+
+    &
+
+    When a user sets down the Every Dice, the side facing up, determined by the contained spacial phidget, will become the chosen answer. At this point, the user can tap the 'check answer' button in the application and communication between the Every Dice, and the Android application should ensure that the user is notified whether their answer is incorrect or correct with a display on the screen facing upwards and an audio tone.\\
+
+    \midrule
+
+    REQ2
+
+    &
+
+    The Every Dice should permit the size of the dice to be greater than 6 sides. Allowing for the Every Dice to be used in games that require dices with varying shapes of dice.
+
+    &
+
+    The Android application should include a state machine feature that ensures that the Every Dice is notified when the number of items listed in the application are greater than 6 sides, with the Every Dice having virtually more than 6 sides.\\
+
+    \cmidrule{3-3}
+
+    &
+
+    &
+
+    In this instance, instead of displaying each item on each side as the application does when 6 items are selected, the application should animate each screen, with a shuffle through each of the items listed in the application.\\
+
+    \cmidrule{3-3}
+
+    &
+
+    &
+
+    The application should make a pseudo-random choice of one of the listed items. Once an external spatial phidget has been shaken, the selected pseudo-random item is displayed to the side facing upwards as the chosen side. The side facing upwards will again be determined by the internal spatial phidget.\\
+
+    \midrule
+
+    REQ3
+
+    &
+
+    The Every Dice should facilitate an auto-roll feature, for entertainment purposes and for the purpose of a user being able to auto-roll a random answer when they are unsure of a question within a classroom setting.
+
+    &
+
+    With a shake of the mobile phone device the application will send a prompt to the Every Dice to auto-roll. The Every Dice should use the servo motors contained within the dice housing to open each side to roll the dice over a random number of times.\\
+
+    \midrule
+
+    REQ4
+
+    &
+
+    The Every Dice should be able to stand out in the foreground and be able to blend into the background.
+
+    &
+
+    With the use of contexts in the Android application lifecycle, we can identify when the user is no longer using the Every Dice. When this occurs, the dice will play a sleep audio tone before turning off all screens and disabling the phidget hardware. When the application becomes the main focus of the mobile device again, the Every Dice plays a start audio tone and the screens are displayed once again after all phidgets have been restarted.\\
+
+\end{xltabular}
+\label{tbl:func_reqs_table}

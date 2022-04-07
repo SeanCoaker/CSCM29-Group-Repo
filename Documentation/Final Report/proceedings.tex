@@ -1,0 +1,178 @@
+\documentclass{sigchi}
+
+% Use this command to override the default ACM copyright statement
+% (e.g. for preprints).  Consult the conference website for the
+% camera-ready copyright statement.
+
+
+%% EXAMPLE BEGIN -- HOW TO OVERRIDE THE DEFAULT COPYRIGHT STRIP -- (July 22, 2013 - Paul Baumann)
+% \toappear{Permission to make digital or hard copies of all or part of this work for personal or classroom use is      granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org. \\
+% {\emph{CHI'14}}, April 26--May 1, 2014, Toronto, Canada. \\
+% Copyright \copyright~2014 ACM ISBN/14/04...\$15.00. \\
+% DOI string from ACM form confirmation}
+%% EXAMPLE END -- HOW TO OVERRIDE THE DEFAULT COPYRIGHT STRIP -- (July 22, 2013 - Paul Baumann)
+
+
+% Arabic page numbers for submission.  Remove this line to eliminate
+% page numbers for the camera ready copy 
+
+%\pagenumbering{arabic}
+
+% Load basic packages
+\usepackage{balance}  % to better equalize the last page
+% \usepackage{graphics} % for EPS, load graphicx instead 
+%\usepackage[T1]{fontenc}
+\usepackage{txfonts}
+\usepackage{times}    % comment if you want LaTeX's default font
+\usepackage[pdftex]{hyperref}
+% \usepackage{url}      % llt: nicely formatted URLs
+\usepackage{color}
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{ccicons}
+\usepackage{todonotes}
+\usepackage{xltabular}
+\usepackage{graphicx}
+
+% llt: Define a global style for URLs, rather that the default one
+\makeatletter
+\def\url@leostyle{%
+  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{\def\UrlFont{\small\bf\ttfamily}}}
+\makeatother
+\urlstyle{leo}
+
+% To make various LaTeX processors do the right thing with page size.
+\def\pprw{8.5in}
+\def\pprh{11in}
+\special{papersize=\pprw,\pprh}
+\setlength{\paperwidth}{\pprw}
+\setlength{\paperheight}{\pprh}
+\setlength{\pdfpagewidth}{\pprw}
+\setlength{\pdfpageheight}{\pprh}
+
+% Make sure hyperref comes last of your loaded packages, to give it a
+% fighting chance of not being over-written, since its job is to
+% redefine many LaTeX commands.
+\definecolor{linkColor}{RGB}{6,125,233}
+\hypersetup{%
+  pdftitle={CSCM79: Hardware \& Devices Coursework Report - The Every Dice},
+  pdfauthor={LaTeX},
+  pdfkeywords={dice, hardware, devices, coursework, report, cscm79},
+  bookmarksnumbered,
+  pdfstartview={FitH},
+  colorlinks,
+  citecolor=black,
+  filecolor=black,
+  linkcolor=black,
+  urlcolor=linkColor,
+  breaklinks=true,
+}
+
+% create a shortcut to typeset table headings
+% \newcommand\tabhead[1]{\small\textbf{#1}}
+
+% End of preamble. Here it comes the document.
+\begin{document}
+
+\title{CSCM79: Hardware \& Devices Coursework Report \\- The Every Dice}
+
+\numberofauthors{4}
+\author{%
+  \alignauthor{Jamie Bragg\\
+    \affaddr{2137481}}\\
+  \alignauthor{Sean Coaker\\
+    \affaddr{986529}}\\
+  \alignauthor{Dylan Parry\\
+    \affaddr{961883}}\\
+  \alignauthor{Ryan Lucas\\
+    \affaddr{951998}}\\
+}
+
+\maketitle
+
+\begin{abstract}
+  TO-DO
+\end{abstract}
+
+\section{Introduction}
+
+  Anxiety has been studied as a problem occurring within classrooms where certain teaching practices put pressure on students and can cause excess stress. This anxiety, caused primarily by the tactic of calling on a specific student to answer questions, has also been seen as a link to general social anxiety and lower grades.  
+
+  Active learning is a method of teaching where the students are actively involved in the learning process through discussion, debate, and tasks that help the student develop their understanding of a topic as they work through it. 
+
+  However, the problems become apparent when you see that active learning also uses techniques which increase anxiety in the classroom. These techniques, whilst beneficial to those without anxiety, can be seen as stress inducing to students suffering with anxiety, rendering it less useful. For active learning to be effective, there must be ways to adapt it to students who suffer from anxiety. 
+
+  To address the problem of anxiety in the classroom, this report will investigate the viability of using technology in an active learning environment, with the goal of reducing anxiety whilst retaining the effectiveness of active learning. By doing so, this report should be able to develop a prototype of a product that could achieve this task. 
+
+\section{Literature Review}
+
+  Active learning is defined as “a method of learning in which students are actively or experientially involved in the learning process.” \cite{bonwell_eison_1991}. It is seen as a beneficial teaching method in which students are actively involved in the learning process. This can be accomplished through tools such as class discussions and debates where the students are encouraged to talk to one another or the teacher to generate a greater understanding of the topic. The benefits of active learning are apparent, with active learning reducing the failure rates of students in classes where it is used \cite{freeman_eddy_mcdonough_smith_okoroafor_jordt_wenderoth_2014}.  
+
+  Benjamin England et al. studied anxiety in the classroom. They conducted surveys and interviews with students about which active learning practices caused them to feel anxious. The classroom practices that lead to the most anxiety were different ways of questioning. Cold calling, a practice were the teacher selects a specific student to answer, was the most anxiety inducing while volunteer questioning was the second most anxiety inducing. The reasons that the students gave for feeling anxiety were a mixture of communication apprehension, social anxiety and test anxiety. This demonstrates a problem in the classroom as the authors found that anxiety could have potential impacts on student grades as those who felt stronger anxiety tended to have lower grades \cite{england_brigati_schussler_2017}.
+
+  Active learning techniques have been shown to be beneficial to students despite the concerns about anxiety. Shams Huda et al conducted a study into the benefits of active learning strategies. They found that active learning strategies increased student engagement and participation. Students were also found to have learnt more through active learning strategies. They also found that two thirds of the students also felt that active learning techniques were beneficial to them, this is backed up with an increase in student grades. This paper demonstrates that active learning is an overall positive learning environment. The issue of anxiety shown by Benjamin is the only hurdle found that could lead to students having a bad experience and lower grades. We have designed The Every Dice with the goal of combatting the problem of anxiety when answering questions in the classroom \cite{ul_huda_ali_nanji_cassum_2016}.
+
+\section{Requirements and Specifications}
+
+  This section includes a brief description for the requirements and specifications of the project. The following table, table \ref{tbl:func_reqs_table}, lists the requirements of the Every Dice project along with accompanying specifications that needed to be met to allow each requirement to be attained successfully.
+
+  \onecolumn
+  \vspace{2em}
+  \input{tables/reqs.tex}
+
+\twocolumn
+\section{Implementation}
+
+  The completed first prototype is a package that involves a wooden housing containing all the necessary phidget hardware to implement the Every Dice system. As well as the hardware included in the dice housing, an external spatial phidget is utilised to identify when the dice has been rolled. This decision was made to avoid the prototype itself needing to be rolled, which would have increased the likelihood of causing damage to the dice. An overview of the cutouts to each side of the dice can be seen in figure \ref{fig:dice_cutouts}.
+
+  \input{figures/dice_cutouts.tex}
+
+  As stated previously, the necessary hardware to implement the features required for the project were housed within the dice's wooden casing. Each side acts as a door which has two uses, provide access to the hardware of the device to allow for easy adjustments during prototyping, and to allow for the auto-roll feature of the device to be implemented. Due to resource constraints, we could only implement 3 doors for the auto-roll feature, but they provide a proof-of-concept of how we envisioned this feature working. Each of the 3 working doors are connected to servo-motors which allow them to be opened. The theory behind this is that the opening motion would press the door against the surface it is sat on, causing the dice to flip over to another side. An example of the built prototype containing its hardware contents can be viewed in figure \ref{fig:dice_hardware}.
+
+  \input{figures/dice_hardware.tex}
+
+  Another important piece of hardware that is included within the casing of the prototype is the internal spatial phidget. This phidget is in constant communication with the application, so it understands which side of the device is currently facing upwards. This is important in allowing us to develop the check answer feature for classroom settings, as well as the feature that allows the dice to be more than 6 sides virtually.
+
+
+\section{Evaluation}
+
+
+
+\section{Discussion}
+
+
+
+\section{Conclusion}
+
+
+% Use a numbered list of references at the end of the article, ordered
+% alphabetically by first author, and referenced by numbers in
+% brackets~\cite{ethics, Klemmer:2002:WSC:503376.503378,
+%   Mather:2000:MUT, Zellweger:2001:FAO:504216.504224}. For papers from
+% conference proceedings, include the title of the paper and an
+% abbreviated name of the conference (e.g., for Interact 2003
+% proceedings, use \textit{Proc. Interact 2003}). Do not include the
+% location of the conference or the exact date; do include the page
+% numbers if available. See the examples of citations at the end of this
+% document. Within this template file, use the \texttt{References} style
+% for the text of your citation.
+
+% Your references should be published materials accessible to the
+% public.  Internal technical reports may be cited only if they are
+% easily accessible (i.e., you provide the address for obtaining the
+% report within your citation) and may be obtained by any reader for a
+% nominal fee.  Proprietary information may not be cited. Private
+% communications should be acknowledged in the main text, not referenced
+% (e.g., ``[Robertson, personal communication]'').
+
+% REFERENCES FORMAT
+% References must be the same font size as other body text.
+\bibliographystyle{SIGCHI-Reference-Format}
+\bibliography{sample}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

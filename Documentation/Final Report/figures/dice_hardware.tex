@@ -1,0 +1,17 @@
+% [H] means put the figure HERE, directly when you input this code.
+\begin{figure}[ht!]
+	\centering
+
+% We set the width of the figure based on the width of one line of text on the page. 
+% The value can be tuned to any value in [0.0, 1.0] to scale the image while maintaining its aspect ratio.
+
+	\includegraphics[width=1.0\linewidth]{./figures/hardware.jpg}
+	
+% Caption is defined with a short and long version. The short version is shown in the 
+% List of Figures section, and the long version is used directly with the figure. 		
+	\caption[The Built Every Dice]{An image of the built Every Dice prototype displaying its contents.}
+	
+% For figures label should be defined after the caption to ensure proper figure numbering.
+	\label{fig:dice_hardware}
+	
+\end{figure}
