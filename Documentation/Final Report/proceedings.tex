@@ -33,8 +33,6 @@
 \usepackage{todonotes}
 \usepackage{xltabular}
 \usepackage{graphicx}
-\usepackage{multicol}
-\usepackage{subfig}
 
 % llt: Define a global style for URLs, rather that the default one
 \makeatletter
@@ -94,7 +92,7 @@
 
 \begin{abstract}
 
- This document reports on our hardware device. It explains the motivation behind the device, defines the requirements, details the implementation and evaluates the device along with a discussion of the concepts utilised.
+The Every Dice is an infinitely programmable dice to be used in an education envrionment. This report highlights the motivation behind the device, defines the requirements, details the implementation, and evaluates the device along with a discussion of the concepts utilised.
 
 \end{abstract}
 
@@ -106,7 +104,7 @@ Active learning is a method of teaching where the students are actively involved
 
 However, the problems become apparent when you see that active learning also uses techniques which increase anxiety in the classroom. These techniques, whilst beneficial to those without anxiety, can be seen as stress inducing to students suffering with anxiety, rendering it less useful. For active learning to be effective, there must be ways to adapt it to students who suffer from anxiety. 
 
-To address the problem of anxiety in the classroom, this report wSill investigate the viability of using technology in an active learning environment, with the goal of reducing anxiety whilst retaining the effectiveness of active learning. By doing so, this report should be able to develop a prototype of a product that could achieve this task. 
+To address the problem of anxiety in the classroom, this report will investigate the viability of using technology in an active learning environment, with the goal of reducing anxiety whilst retaining the effectiveness of active learning. By doing so, this report should be able to develop a prototype of a product that could achieve this task. 
 
 \section{Literature Review}
 
@@ -129,15 +127,15 @@ This section includes a brief description for the requirements and specification
 \twocolumn
 \section{Implementation}
 
-The completed first prototype is a package that involves a wooden housing containing all the necessary phidget hardware to implement the Every Dice system. As well as the hardware included in the dice housing, an external spatial phidget is utilised to identify when the dice has been rolled. This decision was made to avoid the prototype itself needing to be rolled, which would have increased the likelihood of causing damage to the dice. An overview of the cutouts to each side of the dice can be seen in figure \ref{fig:dice_cutouts}.
+The completed first prototype is a package that involves a wooden housing containing all the necessary phidget hardware to implement the Every Dice system. As well as the hardware included in the dice housing, an external spatial phidget is utilised to identify when the dice has been rolled. This decision was made to avoid the prototype itself needing to be rolled, which would have increased the likelihood of causing damage to the dice. A 3D design was produced to model the approach with a 2D net created, as seen in figure \ref{fig:dice_cutouts}, to enable it to be laser cut.
 
-  \input{figures/dice_cutouts.tex}
+ \input{figures/dice_cutouts.tex}
 
 As stated previously, the necessary hardware to implement the features required for the project were housed within the dice's wooden casing. Each side acts as a door which has two uses, provide access to the hardware of the device to allow for easy adjustments during prototyping, and to allow for the auto-roll feature of the device to be implemented. Due to resource constraints, we could only implement 3 doors for the auto-roll feature, but they provide a proof-of-concept of how we envisioned this feature working. Each of the 3 working doors are connected to servo-motors which allow them to be opened. The theory behind this is that the opening motion would press the door against the surface it is sat on, causing the dice to flip over to another side. An example of the built prototype containing its hardware contents can be viewed in figure \ref{fig:dice_hardware}.
 
   \input{figures/dice_hardware.tex}
 
-Another important piece of hardware that is included within the casing of the prototype is the internal spatial phidget. This phidget is in constant communication with the application, so it understands which side of the device is currently facing upwards. This is important in allowing us to develop the check answer feature for classroom settings, as well as the feature that allows the dice to be more than 6 sides virtually. A final list of hardware included within this project can be viewed below.
+Another important piece of hardware that is included within the casing of the prototype is the internal spatial phidget. This phidget is in constant communication with the application, so it understands which side of the device is currently facing upwards. This is important in allowing us to develop the check answer feature for classroom settings, as well as the feature that allows the dice to be more than 6 sides virtually. Using Trigonometry, the roll and pitch of the Phidget was determined. A final list of hardware included within this project can be viewed below.
 
 \begin{itemize}
     \item \textbf{2x Spatial Phidget} - One internally to identify which side of the dice is facing upwards, and one externally to help simulate the rolling of the dice.
@@ -153,7 +151,7 @@ Once the main features of our system are initialised, we include code to handle 
 
 The most important development of code is included within the latter stages of the MainActivity class, which handles the detection of which side of the dice is facing upwards. This is achieved by taking measurements for the x angle and y angle of the accelerometer, before comparing those values to pre-determined threshold values to interpret which side of the dice is facing upwards. Determining the side of the dice that is facing upwards was imperative to being able to implement the check answer feature and determine which side of the dice the user had chosen as their answer, as well as being able to implement the roll feature which floats the pseudo-random item from the user's list to the side facing upwards whenever the dice has more than 6 items chosen and the external spatial phidget is shaken. Other code is also included here to detect changes in acceleration from the external spatial phidget, before comparing those values to a threshold value to determine when the external spatial phidget is being shaken. At this stage, we can perform the roll feature for the dice when more than 6 items have been entered by the user. 
 
-Finally, the work within the MainActivity class is completed with the inclusion of code to handle the background-foreground feature of the Every Dice. Effectively, we have included code that allows audio tones to be played when the dice is going from a sleep state to an awake state, or from an awake state to a sleep state. As well as this, we have included code that allows the LCD screens of the dice to also be switched on and off depending on if the dice is supposed to be sleeping or not.
+Finally, the work within the MainActivity class is completed with the inclusion of code to handle the background-foreground feature of the Every Dice. We have included code that allows audio tones to be played when the dice is going from a sleep state to an awake state, or from an awake state to a sleep state. As well as this, we have included code that allows the LCD screens of the dice to also be switched on and off depending on if the dice is supposed to be sleeping or not.
 
 Aside from the MainActivity class, we have developed two other classes to handle the controlling of the user interface fragment as well as the recycler view within the main fragment, which is used to display the user's selected items through the mobile device. The MainFragment class allows the user to tap on the 'Add Choices...' button and list comma-separated strings that act as their list of options. This list of strings is the data source for both the recycler view and the options to be listed on the dice. Each item in the list is displayed as a card view that includes a delete button for each item to allow the item to be removed from the list. An item in the list can also be selected as the 'correct answer', which is then used as comparison against the item on the side facing upwards on the dice when the check answer button is tapped. The clear button in the options menu also allows the user quickly delete all items from their list, as stated earlier in this section. Within all this code, communication is regularly occurring between the MainActivity and MainFragment to update the state of the dice depending on the number of items selected by the user. An example of the Android application's user interface can be seen in figure \ref{fig:ui}.
 
@@ -162,13 +160,13 @@ Aside from the MainActivity class, we have developed two other classes to handle
 
 \section{Evaluation}
 
- The EveryDice is a successful project as it was able to meet, or partially meet, all of the requirements. The device allows the user to answer questions using the dice, therefore REQ1 is partially met. We would need to test this wish real users in a school setting before fully meeting REQ1. REQ2 is met as the app allows for the input of more than 6 options. Once rolled, the dice picks an option to be displayed on the top of the screen. The app includes an option for autoroll, when this is activated the dice servos move the dice automatically. Due to the size of the dice, only 3 servos were included in the prototype; a complete version will include 6 servos, one for each side. This results in the partial completion of REQ3. REQ4 requires ambient media. This is included as the dice makes an alert sound and the screens turn on when it is time to be used. The screens turn off when the app is not being used or when the app loses focus. We successfully placed our hardware inside a cube chassis, representing our interactive surface as a dice, this allows the device to meet REQ5. Finally, REQ6 is met as we included a spatial phidget that takes physical movement as an input which activates the roll function and returns a digital output. The app also controls the autoroll feature. These two features allow bits to interact with atoms and atoms to interact with bits. 
+The EveryDice was successful project as it was able to meet the majority of the requirements.  The device allows the user to answer questions using the dice, therefore REQ1 is partially met. We would need to test this with real users in a school setting before fully meeting REQ1. REQ2 is complete as the app allows for the input of more than 6 options. Once rolled, the dice picks an option to be displayed on the top of the screen. The app includes an option for autoroll, when this is activated the dice servos move the dice automatically. Due to the size of the dice, only 3 servos were included in the prototype; a complete version will include 6 servos, one for each side. This results in the partial completion of REQ3. REQ4 requires ambient media. This is included as the dice makes an alert sound and the screens turn on when it is time to be used. The screens turn off when the app is not being used or when the app loses focus. We successfully placed our hardware inside a cube chassis, representing our interactive surface as a dice, this allows the device to meet REQ5. Finally, REQ6 is met as we included a spatial phidget that takes physical movement as an input which activates the roll function and returns a digital output. The app also controls the autoroll feature. These two features allow bits to interact with atoms and atoms to interact with bits. 
 
 While the device is successful, the prototype can be developed further. Firstly, the wires restrict the movement of the dice; wireless technology can resolve this. Also, the device is a lot larger than a regular dice, making the dice smaller would make it resemble a regular dice better, and convey the affordances better. It can also include LEDs that light up to convey correct or incorrect, instead of relying on the user to read the words on the screen. 
 
 \section{Discussion}
 
-The developed prototype of the Every Dice is a tangible user interface. This is because the device can be held physically in the users’ hand and the interaction involves rolling the device as you would a regular dice. This interaction matches the affordances of the tangible dice that the device is imitating. The device lacks persistent tangibles, when the dice is off so are the screens so the user cannot see what is on each face of the dice, they’ll just see a cube. 
+The developed prototype of the Every Dice is a tangible user interface. The device can be held physically in the users’ hand and the interaction involves rolling the device as you would a regular dice. This interaction matches the affordances of the tangible dice that the device is imitating. The device lacks persistent tangibles, when the dice is off so are the screens so the user cannot see what is on each face of the dice, they’ll just see a cube. 
 
 Ambient media refers to devices that blend into the background and is unnoticed by the user. The EveryDice makes a beeping sound when the app is opened alerting the students that the dice is ready to be used. This is how the device comes to the foreground. When the app is closed or loses focus, the screens turn off; this is how the device blends into the background. 
 
@@ -209,7 +207,8 @@ Through the EveryDice we have created a tangible hardware device with an accompa
 \bibliography{sample}
 
 \section{Appendix}
-Video: https://www.youtube.com/watch?v=OrUFfBXyuI8
+
+A full demonstration of the Every Dice can be viewed at the following link:  https://www.youtube.com/watch?v=OrUFfBXyuI8
 
 \end{document}
 
