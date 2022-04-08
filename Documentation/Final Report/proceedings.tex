@@ -33,6 +33,8 @@
 \usepackage{todonotes}
 \usepackage{xltabular}
 \usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{subfig}
 
 % llt: Define a global style for URLs, rather that the default one
 \makeatletter
@@ -91,7 +93,7 @@
 \maketitle
 
 \begin{abstract}
-  TO-DO
+ This document reports on our hardware device. It explains the motivation behind the device, defines the requirements, details the implementation and evaluates the device along with a discussion of the concepts utilised.  
 \end{abstract}
 
 \section{Introduction}
@@ -116,9 +118,11 @@
 
   This section includes a brief description for the requirements and specifications of the project. The following table, table \ref{tbl:func_reqs_table}, lists the requirements of the Every Dice project along with accompanying specifications that needed to be met to allow each requirement to be attained successfully.
 
-  \onecolumn
-  \vspace{2em}
-  \input{tables/reqs.tex}
+\onecolumn
+\vspace{2em}
+\input{tables/reqs.tex}
+
+
 
 \twocolumn
 \section{Implementation}
@@ -157,14 +161,26 @@
 
 \section{Evaluation}
 
+ The EveryDice is a successful project as it was able to meet, or partially meet, all of the requirements. The device allows the user to answer questions using the dice, therefore REQ1 is partially met. We would need to test this wish real users in a school setting before fully meeting REQ1. REQ2 is met as the app allows for the input of more than 6 options. Once rolled, the dice picks an option to be displayed on the top of the screen. The app includes an option for autoroll, when this is activated the dice servos move the dice automatically. Due to the size of the dice, only 3 servos were included in the prototype; a complete version will include 6 servos, one for each side. This results in the partial completion of REQ3. REQ4 requires ambient media. This is included as the dice makes an alert sound and the screens turn on when it is time to be used. The screens turn off when the app is not being used or when the app loses focus. We successfully placed our hardware inside a cube chassis, representing our interactive surface as a dice, this allows the device to meet REQ5. Finally, REQ6 is met as we included a spatial phidget that takes physical movement as an input which activates the roll function and returns a digital output. The app also controls the autoroll feature. These two features allow bits to interact with atoms and atoms to interact with bits. 
 
+While the device is successful, the prototype can be developed further. Firstly, the wires restrict the movement of the dice; wireless technology can resolve this. Also, the device is a lot larger than a regular dice, making the dice smaller would make it resemble a regular dice better, and convey the affordances better. It can also include LEDs that light up to convey correct or incorrect, instead of relying on the user to read the words on the screen. 
 
 \section{Discussion}
 
+The developed prototype of the Every Dice is a tangible user interface. This is because the device can be held physically in the users’ hand and the interaction involves rolling the device as you would a regular dice. This interaction matches the affordances of the tangible dice that the device is imitating. The device lacks persistent tangibles, when the dice is off so are the screens so the user cannot see what is on each face of the dice, they’ll just see a cube. 
 
+Ambient media refers to devices that blend into the background and is unnoticed by the user. The EveryDice makes a beeping sound when the app is opened alerting the students that the dice is ready to be used. This is how the device comes to the foreground. When the app is closed or loses focus, the screens turn off; this is how the device blends into the background. 
+
+Bits and Atoms refers to the interactions between the physical and digital worlds; the EveryDice has multiple interactions between bits and atoms. The user can physically shake their phone, this manifests in the digital world as the dice’s roll function is triggered. Also, the app can activate servos on the dice to roll it automatically, this is an example of how digital input affects physical output. 
+
+The 1st interaction loop happens when the user picks up the dice and moves it in their hands to see the different faces. The 2nd loop occurs when the screens return correct or incorrect for the answer facing upwards on the dice. The 3rd loop occurs when the app activates the servos to trigger the autoroll feature. 
+
+The EveryDice is designed for general purpose as it can be used in a game setting in the same way a regular dice would, it can also be used by these players for games that require a dice with more than 6 sides. The EveryDice can also be used whenever someone wants to randomise a decision. It can also be used in a school setting, but that is just an example of how the device can be used in industry. 
+
+Challenges encountered during implementation stemmed from physical limitations. The first challenge with the physical dice came from the size as we were unable to fit everything inside the device, this led to us removing 3 servos and limiting the autoroll feature. The second challenge was the servos themselves. Each servo needed different values in the code as they all moved for different lengths of time, this led to a door failing to open enough even though it had the same values as a servo that did open the door enough. This was resolved through brute force, changing the values until all doors opened enough. 
 
 \section{Conclusion}
-
+Through the EveryDice we have created a tangible hardware device with an accompanying app that utilises several concepts of tangible computing. The EveryDice can be used in an array of settings with a focus on education with the aim of reducing classroom anxiety. In this document we have explained our motivation for this project. We also defined our requirements and used them to evaluate our implementation along with a discussion of the tangible concepts included and some of the challenges of the project.  
 
 % Use a numbered list of references at the end of the article, ordered
 % alphabetically by first author, and referenced by numbers in
@@ -190,6 +206,9 @@
 % References must be the same font size as other body text.
 \bibliographystyle{SIGCHI-Reference-Format}
 \bibliography{sample}
+
+\section{Appendix}
+Video: https://www.youtube.com/watch?v=OrUFfBXyuI8
 
 \end{document}
 
